@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/IvanYaremko/rssdukester/models/container"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	p := tea.NewProgram(container.Container{}, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
