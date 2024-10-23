@@ -116,22 +116,6 @@ func (a AddFeed) View() string {
 	}
 
 	return builder.String()
-
-	// for i := 0; i < len(a.errors); i++ {
-	// 	if a.errors[i] != "" {
-	// 		builder.WriteString(a.errors[i])
-	// 	}
-	// }
-	//
-	// s := fmt.Sprintf("%s\n%s\n\n%s\n%s\n%s\n\n%s\n\n\ncursor: %v",
-	// 	inputStyle.Render("Feed name"),
-	// 	a.inputs[0].View(),
-	// 	inputStyle.Render("Feed URL"),
-	// 	a.inputs[1].View(),
-	// 	builder.String(),
-	// 	helpStyle.Render("tab - navigate\nenter - submit\nq - quit"),
-	// 	a.cursor,
-	// )
 }
 
 func textValidate(s string) error {
