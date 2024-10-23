@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var choices = []string{"Taro", "Coffee", "Lychee"}
+var choices = []string{"Add", "Update", "View"}
 
 type Feeds struct {
 	cursor int
@@ -28,8 +28,14 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			f.choice = choices[f.cursor]
-			// return some other Model to change view?
-			return f, tea.Quit
+			switch f.choice {
+			case "Add":
+				return InitialiseAddFeedModel(), nil
+			case "Update":
+				return f, nil
+			case "View":
+				return f, nil
+			}
 
 		case "down", "j":
 			f.cursor++
@@ -51,12 +57,17 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 var borderStyle = lipgloss.NewStyle().
 	Height(50).
 	Width(100).
-	PaddingLeft(10).
-	PaddingTop(2)
+	PaddingLeft(10)
+
+var titleStyle = lipgloss.NewStyle().
+	Bold(true).
+	Underline(true).
+	Italic(true).
+	Render("F E E D S\n\n")
 
 func (f Feeds) View() string {
 	s := strings.Builder{}
-	s.WriteString("What kind of Bubble Tea would you like to order?\n\n")
+	s.WriteString("F E E D S\n\n")
 
 	for i := 0; i < len(choices); i++ {
 		if f.cursor == i {
@@ -67,7 +78,7 @@ func (f Feeds) View() string {
 		s.WriteString(choices[i])
 		s.WriteString("\n")
 	}
-	styledContent := borderStyle.Render(s.String())
+	styledContent := s.String()
 	return styledContent
 }
 

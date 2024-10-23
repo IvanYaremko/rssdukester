@@ -31,7 +31,7 @@ func (c Container) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (c Container) View() string {
-	return "Hello"
+	return ""
 }
 
 func CreateContainer() Container {
