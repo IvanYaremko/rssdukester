@@ -1,16 +1,15 @@
 package rss
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-)
-
-type (
-	errMsg error
 )
 
 var (
@@ -20,10 +19,13 @@ var (
 )
 
 type AddFeed struct {
-	inputs []textinput.Model
-	cursor int
-	err    error
-	errors []string
+	dbQueris  *database.Queries
+	inputs    []textinput.Model
+	cursor    int
+	err       error
+	errors    []string
+	loading   bool
+	isSuccess bool
 }
 
 func (a AddFeed) Init() tea.Cmd {
@@ -51,15 +53,21 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if a.cursor == len(a.inputs)-1 {
-				// form submit
-				return a, nil
+				a.loading = true
+				return a, a.createFeed
 			} else {
 				a.nextInput()
 			}
 		}
-	// catch errors from a CMD, maybe db error access error
-	case errMsg:
-		a.err = msg
+	case success:
+		a.loading = false
+		a.isSuccess = true
+		return a, nil
+
+	case dbError:
+		a.loading = false
+		a.isSuccess = false
+		a.err = msg.dbErr
 		return a, nil
 	}
 
@@ -96,6 +104,16 @@ func (a AddFeed) View() string {
 	builder.WriteString(helpStyle.Render("enter (submit)"))
 	builder.WriteString("\n")
 	builder.WriteString(helpStyle.Render("ctrl+c (quit)"))
+	builder.WriteString("\n")
+	if a.err != nil {
+		builder.WriteString("ERROR INSERTING INTO DB\n")
+		builder.WriteString(a.err.Error())
+		builder.WriteString("\n")
+	}
+
+	if a.isSuccess {
+		builder.WriteString("SUCCESS")
+	}
 
 	return builder.String()
 
@@ -123,7 +141,7 @@ func textValidate(s string) error {
 	return nil
 }
 
-func InitialiseAddFeedModel() AddFeed {
+func InitialiseAddFeedModel(queries *database.Queries) AddFeed {
 	inputs := make([]textinput.Model, 2)
 	inputs[0] = textinput.New()
 	inputs[0].Placeholder = "hackernews"
@@ -135,10 +153,13 @@ func InitialiseAddFeedModel() AddFeed {
 	inputs[1].Validate = textValidate
 
 	return AddFeed{
-		inputs: inputs,
-		cursor: 0,
-		err:    nil,
-		errors: make([]string, len(inputs)),
+		dbQueris:  queries,
+		inputs:    inputs,
+		cursor:    0,
+		err:       nil,
+		errors:    make([]string, len(inputs)),
+		loading:   false,
+		isSuccess: false,
 	}
 }
 
@@ -158,4 +179,27 @@ func (a *AddFeed) prevInput() {
 	if a.cursor < 0 {
 		a.cursor = len(a.inputs) - 1
 	}
+}
+
+func (a AddFeed) createFeed() tea.Msg {
+	name := a.inputs[0].Value()
+	url := a.inputs[1].Value()
+	params := database.CreateFeedParams{
+		Name:      name,
+		Url:       url,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	err := a.dbQueris.CreateFeed(context.Background(), params)
+
+	if err != nil {
+		return dbError{dbErr: err}
+	}
+	return success{}
+}
+
+type success struct{}
+
+type dbError struct {
+	dbErr error
 }

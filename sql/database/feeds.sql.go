@@ -12,7 +12,6 @@ import (
 
 const createFeed = `-- name: CreateFeed :exec
 INSERT INTO feeds (
-    id,
     name,
     url,
     created_at,
@@ -21,22 +20,19 @@ INSERT INTO feeds (
     ?,
     ?,
     ?,
-    ?,
     ?
 ) RETURNING id, name, url, created_at, updated_at
 `
 
 type CreateFeedParams struct {
-	ID        int64
 	Name      string
 	Url       string
 	CreatedAt time.Time
-	UpdatedAt string
+	UpdatedAt time.Time
 }
 
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) error {
 	_, err := q.db.ExecContext(ctx, createFeed,
-		arg.ID,
 		arg.Name,
 		arg.Url,
 		arg.CreatedAt,

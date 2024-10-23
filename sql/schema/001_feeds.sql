@@ -1,10 +1,10 @@
 -- +goose Up
 CREATE TABLE feeds (
-id INTEGER PRIMARY KEY,
+id INTEGER PRIMARY KEY AUTOINCREMENT,
 name TEXT NOT NULL,
 url TEXT NOT NULL UNIQUE,
 created_at DATETIME NOT NULL,
-updated_at TEXT NOT NULL
+updated_at DATETIME NOT NULL
 );
 
 -- +goose Down

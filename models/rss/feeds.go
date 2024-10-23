@@ -3,6 +3,7 @@ package rss
 import (
 	"strings"
 
+	"github.com/IvanYaremko/rssdukester/sql/database"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -10,8 +11,9 @@ import (
 var choices = []string{"Add", "Update", "View"}
 
 type Feeds struct {
-	cursor int
-	choice string
+	dbQueries *database.Queries
+	cursor    int
+	choice    string
 }
 
 func (f Feeds) Init() tea.Cmd {
@@ -30,7 +32,7 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			f.choice = choices[f.cursor]
 			switch f.choice {
 			case "Add":
-				return InitialiseAddFeedModel(), nil
+				return InitialiseAddFeedModel(f.dbQueries), nil
 			case "Update":
 				return f, nil
 			case "View":
@@ -82,9 +84,10 @@ func (f Feeds) View() string {
 	return styledContent
 }
 
-func InitialiseFeedsModel() Feeds {
+func InitialiseFeedsModel(queries *database.Queries) Feeds {
 	return Feeds{
-		cursor: 0,
-		choice: "",
+		dbQueries: queries,
+		cursor:    0,
+		choice:    "",
 	}
 }

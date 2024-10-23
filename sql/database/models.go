@@ -13,5 +13,5 @@ type Feed struct {
 	Name      string
 	Url       string
 	CreatedAt time.Time
-	UpdatedAt string
+	UpdatedAt time.Time
 }

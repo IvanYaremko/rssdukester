@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"github.com/IvanYaremko/rssdukester/models/container"
+	"github.com/IvanYaremko/rssdukester/sql/database"
 	tea "github.com/charmbracelet/bubbletea"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pressly/goose"
 )
 
 func main() {
@@ -17,11 +17,9 @@ func main() {
 	}
 	defer db.Close()
 
-	if err := goose.Up(db, "./database.db"); err != nil {
-		log.Fatalln("error migration database.db", err)
-	}
+	quries := database.New(db)
 
-	p := tea.NewProgram(container.Container{}, tea.WithAltScreen())
+	p := tea.NewProgram(container.CreateContainer(quries), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}
