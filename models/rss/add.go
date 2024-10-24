@@ -24,7 +24,6 @@ type AddFeed struct {
 	cursor    int
 	err       error
 	errors    []string
-	loading   bool
 	isSuccess bool
 }
 
@@ -53,19 +52,16 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if a.cursor == len(a.inputs)-1 {
-				a.loading = true
 				return a, a.createFeed
 			} else {
 				a.nextInput()
 			}
 		}
 	case success:
-		a.loading = false
 		a.isSuccess = true
 		return a, nil
 
 	case dbError:
-		a.loading = false
 		a.isSuccess = false
 		a.err = msg.dbErr
 		return a, nil
@@ -142,7 +138,6 @@ func InitialiseAddFeedModel(queries *database.Queries) AddFeed {
 		cursor:    0,
 		err:       nil,
 		errors:    make([]string, len(inputs)),
-		loading:   false,
 		isSuccess: false,
 	}
 }
