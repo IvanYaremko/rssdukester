@@ -17,3 +17,5 @@ SELECT * FROM feeds WHERE id = ?;
 -- name: GetFeedByUrl :one
 SELECT * FROM feeds WHERE url = ?;
 
+-- name: GetFeeds :many
+SELECT * FROM feeds;
