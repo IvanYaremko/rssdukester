@@ -10,17 +10,26 @@ import (
 )
 
 type ViewModel struct {
-	dbQueries database.Queries
+	dbQueries *database.Queries
 	feeds     []database.Feed
 	err       error
 }
 
 func (v ViewModel) Init() tea.Cmd {
-	return v.getFeeds
+	tea.Println("ViewModel init called")
+	return getFeeds(v.dbQueries)
 }
 
 func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
+			return v, tea.Quit
+		}
+	case successFeed:
+		v.feeds[0] = msg.feed
+		return v, nil
 
 	case dbError:
 		v.err = msg.dbErr
@@ -35,10 +44,15 @@ func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (v ViewModel) View() string {
 	builder := strings.Builder{}
-
+	builder.WriteString("VIEW feeds\n")
 	if v.err != nil {
 		builder.WriteString("error gettings feeds from db")
 		builder.WriteString("\n")
+		builder.WriteString(v.err.Error())
+	}
+
+	if len(v.feeds) == 0 {
+		builder.WriteString("no feeds found in db")
 	}
 
 	for _, feed := range v.feeds {
@@ -50,7 +64,7 @@ func (v ViewModel) View() string {
 	return builder.String()
 }
 
-func InitialiseViewModel(queries database.Queries) ViewModel {
+func InitialiseViewModel(queries *database.Queries) ViewModel {
 	return ViewModel{
 		dbQueries: queries,
 		feeds:     make([]database.Feed, 0),
@@ -58,12 +72,29 @@ func InitialiseViewModel(queries database.Queries) ViewModel {
 	}
 }
 
-func (v *ViewModel) getFeeds() tea.Msg {
-	feeds, err := v.dbQueries.GetFeeds(context.Background())
+func getFeeds(q *database.Queries) tea.Cmd {
+	return func() tea.Msg {
+		tea.Println("getfeeds invoked")
+		data, err := q.GetFeeds(context.Background())
+		tea.Println("getfeeds feeds", data)
+		if err != nil {
+			return dbError{dbErr: err}
+		}
+		return dbSuccess{feeds: data}
+	}
+
+}
+
+func (v ViewModel) getFeed() tea.Msg {
+	data, err := v.dbQueries.GetFeedById(context.Background(), 0)
 	if err != nil {
 		return dbError{dbErr: err}
 	}
-	return dbSuccess{feeds: feeds}
+	return successFeed{feed: data}
+}
+
+type successFeed struct {
+	feed database.Feed
 }
 
 type dbSuccess struct {

@@ -21,6 +21,7 @@ var (
 type AddFeed struct {
 	dbQueris  *database.Queries
 	inputs    []textinput.Model
+	feed      database.Feed
 	cursor    int
 	err       error
 	errors    []string
@@ -28,7 +29,7 @@ type AddFeed struct {
 }
 
 func (a AddFeed) Init() tea.Cmd {
-	return nil
+	return a.getFeed
 }
 
 func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -57,6 +58,7 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				a.nextInput()
 			}
 		}
+		return a, nil
 	case success:
 		a.isSuccess = true
 		return a, nil
@@ -64,6 +66,10 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case dbError:
 		a.isSuccess = false
 		a.err = msg.dbErr
+		return a, nil
+	case successFeed:
+		a.isSuccess = true
+		a.feed = msg.feed
 		return a, nil
 	}
 
@@ -77,7 +83,9 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a AddFeed) View() string {
 	builder := strings.Builder{}
-
+	builder.WriteString("FEED 0 \n\n")
+	builder.WriteString(a.feed.Url)
+	builder.WriteString("\n\n\n\n")
 	builder.WriteString(inputStyle.Render("feed name"))
 	builder.WriteString("\n")
 	builder.WriteString(a.inputs[0].View())
@@ -133,9 +141,15 @@ func InitialiseAddFeedModel(queries *database.Queries) AddFeed {
 	inputs[1].Validate = textValidate
 
 	return AddFeed{
-		dbQueris:  queries,
-		inputs:    inputs,
-		cursor:    0,
+		dbQueris: queries,
+		inputs:   inputs,
+		cursor:   0,
+		feed: database.Feed{
+			Name:      "test",
+			Url:       "test",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
 		err:       nil,
 		errors:    make([]string, len(inputs)),
 		isSuccess: false,
@@ -175,6 +189,14 @@ func (a AddFeed) createFeed() tea.Msg {
 		return dbError{dbErr: err}
 	}
 	return success{}
+}
+
+func (a AddFeed) getFeed() tea.Msg {
+	data, err := a.dbQueris.GetFeedById(context.Background(), 0)
+	if err != nil {
+		return dbError{dbErr: err}
+	}
+	return successFeed{feed: data}
 }
 
 type success struct{}

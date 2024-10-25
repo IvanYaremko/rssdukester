@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/IvanYaremko/rssdukester/models/container"
@@ -19,7 +21,14 @@ func main() {
 
 	quries := database.New(db)
 
-	p := tea.NewProgram(container.CreateContainer(quries), tea.WithAltScreen())
+	feed, err := quries.GetFeedById(context.Background(), 0)
+	if err != nil {
+		log.Fatalln("error getting feed by id", err)
+	}
+
+	fmt.Println("feed:", feed)
+
+	p := tea.NewProgram(container.CreateContainer(quries))
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}

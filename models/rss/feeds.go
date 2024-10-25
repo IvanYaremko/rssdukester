@@ -36,7 +36,7 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "Update":
 				return f, nil
 			case "View":
-				return f, nil
+				return InitialiseViewModel(f.dbQueries), nil
 			}
 
 		case "down", "j":
