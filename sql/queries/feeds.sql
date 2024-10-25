@@ -18,4 +18,4 @@ SELECT * FROM feeds WHERE id = ?;
 SELECT * FROM feeds WHERE url = ?;
 
 -- name: GetFeeds :many
-SELECT * FROM feeds;
+SELECT * FROM feeds ORDER BY created_at DESC;

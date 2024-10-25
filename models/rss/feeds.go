@@ -17,7 +17,6 @@ type Feeds struct {
 }
 
 func (f Feeds) Init() tea.Cmd {
-	// get feeds from database?
 	return nil
 }
 
@@ -32,11 +31,13 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			f.choice = choices[f.cursor]
 			switch f.choice {
 			case "Add":
-				return InitialiseAddFeedModel(f.dbQueries), nil
+				model := InitialiseAddFeedModel(f.dbQueries)
+				return model, model.Init()
 			case "Update":
 				return f, nil
 			case "View":
-				return InitialiseViewModel(f.dbQueries), nil
+				model := InitialiseViewModel(f.dbQueries)
+				return model, model.Init()
 			}
 
 		case "down", "j":

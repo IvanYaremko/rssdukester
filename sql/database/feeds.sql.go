@@ -76,7 +76,7 @@ func (q *Queries) GetFeedByUrl(ctx context.Context, url string) (Feed, error) {
 }
 
 const getFeeds = `-- name: GetFeeds :many
-SELECT id, name, url, created_at, updated_at FROM feeds
+SELECT id, name, url, created_at, updated_at FROM feeds ORDER BY created_at DESC
 `
 
 func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {

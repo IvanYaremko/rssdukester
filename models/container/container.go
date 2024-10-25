@@ -20,9 +20,11 @@ func (c Container) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case configFetched:
 		if msg.cfg.Username == "" {
-			return login.InitialLoginModel(), nil
+			model := login.InitialLoginModel()
+			return model, model.Init()
 		} else {
-			return rss.InitialiseFeedsModel(c.dbQueries), nil
+			model := rss.InitialiseFeedsModel(c.dbQueries)
+			return model, model.Init()
 		}
 	case configFetchError:
 		return c, func() tea.Msg {

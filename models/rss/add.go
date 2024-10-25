@@ -29,7 +29,7 @@ type AddFeed struct {
 }
 
 func (a AddFeed) Init() tea.Cmd {
-	return a.getFeed
+	return nil
 }
 
 func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -67,10 +67,7 @@ func (a AddFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.isSuccess = false
 		a.err = msg.dbErr
 		return a, nil
-	case successFeed:
-		a.isSuccess = true
-		a.feed = msg.feed
-		return a, nil
+
 	}
 
 	for i := 0; i < len(a.inputs); i++ {
@@ -189,14 +186,6 @@ func (a AddFeed) createFeed() tea.Msg {
 		return dbError{dbErr: err}
 	}
 	return success{}
-}
-
-func (a AddFeed) getFeed() tea.Msg {
-	data, err := a.dbQueris.GetFeedById(context.Background(), 0)
-	if err != nil {
-		return dbError{dbErr: err}
-	}
-	return successFeed{feed: data}
 }
 
 type success struct{}

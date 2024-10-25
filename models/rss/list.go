@@ -16,8 +16,7 @@ type ViewModel struct {
 }
 
 func (v ViewModel) Init() tea.Cmd {
-	tea.Println("ViewModel init called")
-	return getFeeds(v.dbQueries)
+	return v.getFeeds
 }
 
 func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -26,6 +25,10 @@ func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return v, tea.Quit
+		}
+		switch msg.String() {
+		case "r":
+			return v, v.getFeeds
 		}
 	case successFeed:
 		v.feeds[0] = msg.feed
@@ -72,25 +75,12 @@ func InitialiseViewModel(queries *database.Queries) ViewModel {
 	}
 }
 
-func getFeeds(q *database.Queries) tea.Cmd {
-	return func() tea.Msg {
-		tea.Println("getfeeds invoked")
-		data, err := q.GetFeeds(context.Background())
-		tea.Println("getfeeds feeds", data)
-		if err != nil {
-			return dbError{dbErr: err}
-		}
-		return dbSuccess{feeds: data}
-	}
-
-}
-
-func (v ViewModel) getFeed() tea.Msg {
-	data, err := v.dbQueries.GetFeedById(context.Background(), 0)
+func (v *ViewModel) getFeeds() tea.Msg {
+	data, err := v.dbQueries.GetFeeds(context.Background())
 	if err != nil {
 		return dbError{dbErr: err}
 	}
-	return successFeed{feed: data}
+	return dbSuccess{feeds: data}
 }
 
 type successFeed struct {
