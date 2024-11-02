@@ -63,7 +63,6 @@ func (v ViewModel) View() string {
 
 		builder.WriteString(s)
 	}
-
 	return builder.String()
 }
 
