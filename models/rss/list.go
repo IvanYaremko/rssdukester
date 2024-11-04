@@ -2,21 +2,32 @@ package rss
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
+
+var docStyle = lipgloss.NewStyle().Margin(1, 2)
+
+type item struct {
+	name, url string
+}
+
+func (i item) Title() string       { return i.name }
+func (i item) Description() string { return i.url }
+func (i item) FilterValue() string { return i.name }
 
 type ViewModel struct {
 	dbQueries *database.Queries
-	feeds     []database.Feed
+	list      list.Model
 	err       error
 }
 
 func (v ViewModel) Init() tea.Cmd {
-	return v.getFeeds
+	return tea.Batch(v.getFeeds, tea.EnterAltScreen)
 }
 
 func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -30,19 +41,19 @@ func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			return v, v.getFeeds
 		}
-	case successFeed:
-		v.feeds[0] = msg.feed
-		return v, nil
 
 	case dbError:
 		v.err = msg.dbErr
 		return v, nil
 
 	case dbSuccess:
-		v.feeds = msg.feeds
-		return v, nil
+		cmd := v.list.SetItems(msg.items)
+		return v, cmd
 	}
-	return v, nil
+
+	var cmd tea.Cmd
+	v.list, cmd = v.list.Update(msg)
+	return v, cmd
 }
 
 func (v ViewModel) View() string {
@@ -52,40 +63,47 @@ func (v ViewModel) View() string {
 		builder.WriteString("error gettings feeds from db")
 		builder.WriteString("\n")
 		builder.WriteString(v.err.Error())
+		return builder.String()
 	}
 
-	if len(v.feeds) == 0 {
+	if len(v.list.Items()) == 0 {
 		builder.WriteString("no feeds found in db")
+		return builder.String()
 	}
 
-	for _, feed := range v.feeds {
-		s := fmt.Sprintf("name: %s\n\nurl: %s\n", feed.Name, feed.Url)
-
-		builder.WriteString(s)
-	}
-	return builder.String()
+	return docStyle.Render(v.list.View())
 }
 
 func InitialiseViewModel(queries *database.Queries) ViewModel {
+	l := list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0)
+	l.SetShowTitle(true)
+	l.Title = "RSS FEEDS"
+	l.SetSize(30, 30)
+
 	return ViewModel{
 		dbQueries: queries,
-		feeds:     make([]database.Feed, 0),
 		err:       nil,
+		list:      l,
 	}
 }
 
 func (v *ViewModel) getFeeds() tea.Msg {
-	data, err := v.dbQueries.GetFeeds(context.Background())
+	feeds, err := v.dbQueries.GetFeeds(context.Background())
 	if err != nil {
 		return dbError{dbErr: err}
 	}
-	return dbSuccess{feeds: data}
-}
 
-type successFeed struct {
-	feed database.Feed
+	list := make([]list.Item, 0, len(feeds))
+	for _, feed := range feeds {
+		list = append(list, item{
+			name: feed.Name,
+			url:  feed.Url,
+		})
+	}
+
+	return dbSuccess{items: list}
 }
 
 type dbSuccess struct {
-	feeds []database.Feed
+	items []list.Item
 }
