@@ -5,12 +5,18 @@ import (
 	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var (
+	docStyle           = lipgloss.NewStyle().Margin(1, 2)
+	statusMessageStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
+				Render
+)
 
 type item struct {
 	name, url string
@@ -21,9 +27,11 @@ func (i item) Description() string { return i.url }
 func (i item) FilterValue() string { return i.name }
 
 type ViewModel struct {
-	dbQueries *database.Queries
-	list      list.Model
-	err       error
+	dbQueries   *database.Queries
+	list        list.Model
+	err         error
+	keys        *listKeyMap
+	delgateKeys *delegateKeyMap
 }
 
 func (v ViewModel) Init() tea.Cmd {
@@ -31,15 +39,38 @@ func (v ViewModel) Init() tea.Cmd {
 }
 
 func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
+
+	case tea.WindowSizeMsg:
+		x, y := docStyle.GetFrameSize()
+		v.list.SetSize(msg.Width-x, msg.Height-y)
+
 	case tea.KeyMsg:
+		if v.list.FilterState() == list.Filtering {
+			break
+		}
+
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return v, tea.Quit
 		}
+
 		switch msg.String() {
 		case "r":
 			return v, v.getFeeds
+		}
+
+		switch {
+		case key.Matches(msg, v.keys.toggleTitleBar):
+			flag := !v.list.ShowTitle()
+			v.list.SetShowTitle(flag)
+			return v, nil
+
+		case key.Matches(msg, v.keys.toggleSpinner):
+			cmd := v.list.ToggleSpinner()
+			return v, cmd
 		}
 
 	case dbError:
@@ -49,11 +80,14 @@ func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case dbSuccess:
 		cmd := v.list.SetItems(msg.items)
 		return v, cmd
+
 	}
 
-	var cmd tea.Cmd
-	v.list, cmd = v.list.Update(msg)
-	return v, cmd
+	newListModel, cmd := v.list.Update(msg)
+	v.list = newListModel
+	cmds = append(cmds, cmd)
+
+	return v, tea.Batch(cmds...)
 }
 
 func (v ViewModel) View() string {
@@ -75,15 +109,38 @@ func (v ViewModel) View() string {
 }
 
 func InitialiseViewModel(queries *database.Queries) ViewModel {
-	l := list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0)
+	var (
+		listKeys     = newListKeyMap()
+		delegateKeys = newDelegateKeyMap()
+	)
+
+	delagate := newItemDelegate(delegateKeys)
+	l := list.New(make([]list.Item, 0), delagate, 30, 30)
 	l.SetShowTitle(true)
 	l.Title = "RSS FEEDS"
-	l.SetSize(30, 30)
+	l.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			delegateKeys.choose,
+			delegateKeys.remove,
+		}
+	}
+	l.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			listKeys.toggleSpinner,
+			listKeys.toggleTitleBar,
+			listKeys.toggleHelpMenu,
+			listKeys.togglePagination,
+			listKeys.toggleStatusBar,
+			listKeys.insertItem,
+		}
+	}
 
 	return ViewModel{
-		dbQueries: queries,
-		err:       nil,
-		list:      l,
+		dbQueries:   queries,
+		err:         nil,
+		list:        l,
+		delgateKeys: delegateKeys,
+		keys:        listKeys,
 	}
 }
 
