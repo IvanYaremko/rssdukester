@@ -115,6 +115,7 @@ func InitialiseViewModel(queries *database.Queries) ViewModel {
 	)
 
 	delagate := newItemDelegate(delegateKeys)
+
 	l := list.New(make([]list.Item, 0), delagate, 30, 30)
 	l.SetShowTitle(true)
 	l.Title = "RSS FEEDS"

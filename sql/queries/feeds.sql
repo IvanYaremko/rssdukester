@@ -19,3 +19,6 @@ SELECT * FROM feeds WHERE url = ?;
 
 -- name: GetFeeds :many
 SELECT * FROM feeds ORDER BY created_at DESC;
+
+-- name: DeleteFeed :exec
+DELETE FROM feeds WHERE url = ?;
