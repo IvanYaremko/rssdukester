@@ -1,14 +1,16 @@
 package rss
 
 import (
+	"context"
+
+	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func newItemDelegate(keys *delegateKeyMap) list.DefaultDelegate {
+func newItemDelegate(keys *delegateKeyMap, queries *database.Queries) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
-
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		var title string
 
@@ -26,11 +28,12 @@ func newItemDelegate(keys *delegateKeyMap) list.DefaultDelegate {
 
 			case key.Matches(msg, keys.remove):
 				index := m.Index()
+				i := m.SelectedItem().(item)
 				m.RemoveItem(index)
 				if len(m.Items()) == 0 {
 					keys.remove.SetEnabled(false)
 				}
-				return m.NewStatusMessage(statusMessageStyle("Deleted " + title))
+				return tea.Batch(removeFeed(i, queries), m.NewStatusMessage(statusMessageStyle("Deleted "+title)))
 			}
 		}
 
@@ -57,3 +60,15 @@ func newDelegateKeyMap() *delegateKeyMap {
 		),
 	}
 }
+
+func removeFeed(item item, queries *database.Queries) tea.Cmd {
+	return func() tea.Msg {
+
+		if err := queries.DeleteFeed(context.Background(), item.url); err != nil {
+			return dbError{dbErr: err}
+		}
+		return generalSuccess{}
+	}
+}
+
+type generalSuccess struct{}

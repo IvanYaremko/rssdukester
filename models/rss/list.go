@@ -35,7 +35,7 @@ type ViewModel struct {
 }
 
 func (v ViewModel) Init() tea.Cmd {
-	return tea.Batch(v.getFeeds, tea.EnterAltScreen)
+	return v.getFeeds
 }
 
 func (v ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -114,7 +114,7 @@ func InitialiseViewModel(queries *database.Queries) ViewModel {
 		delegateKeys = newDelegateKeyMap()
 	)
 
-	delagate := newItemDelegate(delegateKeys)
+	delagate := newItemDelegate(delegateKeys, queries)
 
 	l := list.New(make([]list.Item, 0), delagate, 30, 30)
 	l.SetShowTitle(true)
