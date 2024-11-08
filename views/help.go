@@ -18,31 +18,34 @@ func (k keyMap) ShortHelp() []key.Binding {
 
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Up, k.Down, k.Enter},
-		{k.Add, k.List},
-		{k.Help, k.Quit},
+		{k.Up, k.Down, k.Enter, k.Add},
+		{k.List, k.Help, k.Quit},
 	}
 }
 
 var keys = keyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "up"),
+		key.WithHelp("'↑/k'", "up"),
 	),
 	Down: key.NewBinding(
 		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "down"),
+		key.WithHelp("'↓/j'", "down"),
 	),
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("↵", "select"),
+		key.WithHelp("'↵'", "enter"),
 	),
 	Add: key.NewBinding(
 		key.WithKeys("A"),
-		key.WithHelp("⇧ a", "add rss feed"),
+		key.WithHelp("'⇧'", "add feed"),
 	),
 	Help: key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp("?", "toggle help"),
+		key.WithHelp("'?'", "toggle help"),
+	),
+	Quit: key.NewBinding(
+		key.WithKeys("q"),
+		key.WithHelp("'q'", "quit"),
 	),
 }

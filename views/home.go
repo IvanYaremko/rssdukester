@@ -53,6 +53,22 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					h.cursor++
 				}
+			case key.Matches(msg, h.keys.Quit):
+				return h, tea.Quit
+			case key.Matches(msg, h.keys.Help):
+				h.help.ShowAll = !h.help.ShowAll
+			case key.Matches(msg, h.keys.Enter):
+				switch h.cursor {
+				case 0:
+					//
+					return h, nil
+				case 1:
+					//
+					return h, nil
+				case 2:
+					//
+					return h, nil
+				}
 			}
 		}
 	}
