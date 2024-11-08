@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/IvanYaremko/rssdukester/models/container"
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/IvanYaremko/rssdukester/views"
 	tea "github.com/charmbracelet/bubbletea"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,7 +19,7 @@ func main() {
 
 	quries := database.New(db)
 
-	p := tea.NewProgram(container.CreateContainer(quries))
+	p := tea.NewProgram(views.InitHomeModel(quries), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}

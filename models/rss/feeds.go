@@ -32,7 +32,7 @@ func (f Feeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch f.choice {
 			case "Add":
 				model := InitialiseAddFeedModel(f.dbQueries)
-				return model, model.Init()
+				return model, nil
 			case "Update":
 				return f, nil
 			case "View":
