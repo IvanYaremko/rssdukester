@@ -27,11 +27,11 @@ func (k keyMap) FullHelp() [][]key.Binding {
 var keys = keyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "move up"),
+		key.WithHelp("↑/k", "up"),
 	),
 	Down: key.NewBinding(
 		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "move down"),
+		key.WithHelp("↓/j", "down"),
 	),
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),

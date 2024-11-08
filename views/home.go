@@ -62,24 +62,21 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (h Home) View() string {
 	s := strings.Builder{}
-
 	for i := 0; i < len(homeNav); i++ {
 		if h.cursor == i {
-			s.WriteString("[•] ")
+			s.WriteString(highlightStyle.Render("[•] ", homeNav[i]))
 		} else {
-			s.WriteString("[ ] ")
+			s.WriteString("[ ] " + homeNav[i])
 		}
-		s.WriteString(homeNav[i])
 		s.WriteString("\n")
 		s.WriteString("\n")
 	}
 	s.WriteString("\n")
 	s.WriteString(h.help.View(h.keys))
-	return s.String()
+	return baseStyle.Render(s.String())
 }
 
 func InitHomeModel(q *database.Queries) Home {
-
 	return Home{
 		queries: q,
 		keys:    keys,
