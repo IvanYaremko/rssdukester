@@ -7,8 +7,10 @@ import (
 	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type addFeed struct {
@@ -55,16 +57,52 @@ func (a addFeed) Init() tea.Cmd {
 func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
+	moveFocus := []key.Binding{
+		a.keyMap.Down,
+		a.keyMap.Tab,
+		a.keyMap.Up,
+		a.keyMap.ShiftTab,
+		a.keyMap.Enter,
+	}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
 			return a, tea.Quit
-
-		case "up", "down", "tab", "shift+tab", "enter":
-
 		}
 
+		switch {
+		case key.Matches(msg, moveFocus...):
+			if key.Matches(msg, a.keyMap.Enter) && a.cursor == len(a.inputs) {
+				// submit
+				return a, nil
+			}
+
+			if key.Matches(msg, a.keyMap.Up) || key.Matches(msg, a.keyMap.ShiftTab) {
+				a.cursor--
+			} else {
+				a.cursor++
+			}
+
+			if a.cursor > len(a.inputs) {
+				a.cursor = 0
+			} else if a.cursor < 0 {
+				a.cursor = len(a.inputs)
+			}
+
+			cmds := make([]tea.Cmd, len(a.inputs))
+			for i := range a.inputs {
+				if i == a.cursor {
+					cmds[i] = a.inputs[i].Focus()
+					a.inputs[i].TextStyle = highlightStyle.Bold(true)
+					continue
+				}
+
+				a.inputs[i].Blur()
+				a.inputs[i].TextStyle = lipgloss.NewStyle()
+			}
+			return a, tea.Batch(cmds...)
+		}
 	}
 
 	cmd := a.updateInputs(msg)
