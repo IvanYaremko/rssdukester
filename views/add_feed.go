@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
