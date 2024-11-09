@@ -23,6 +23,10 @@ var (
 		key.WithKeys("enter"),
 		key.WithHelp("⏎", "enter"),
 	)
+	escBinding = key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "back"),
+	)
 )
 
 type HomeKeyMap struct {
@@ -76,19 +80,18 @@ type AddKeyMap struct {
 	Tab      key.Binding
 	ShiftTab key.Binding
 	Quit     key.Binding
-	Home     key.Binding
 	Help     key.Binding
+	Back     key.Binding
 }
 
 func (a AddKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{a.Enter, a.Help, a.Quit}
+	return []key.Binding{a.Enter, a.Back, a.Help, a.Quit}
 }
 
 func (a AddKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{a.Up, a.Down, a.Tab, a.ShiftTab},
-		{a.Quit, a.Help},
-		{a.Home},
+		{a.Quit, a.Help, a.Back},
 	}
 }
 
@@ -106,8 +109,5 @@ var AddKeys = AddKeyMap{
 	Enter:    enterBinding,
 	Help:     helpBinding,
 	Quit:     quitBinding,
-	Home: key.NewBinding(
-		key.WithKeys("H"),
-		key.WithHelp("H", "home page"),
-	),
+	Back:     escBinding,
 }

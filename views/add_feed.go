@@ -85,12 +85,11 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return a, tea.Quit
-		case "esc":
+		}
+		switch {
+		case key.Matches(msg, a.keyMap.Back):
 			home := InitHomeModel(a.queries)
 			return home, home.Init()
-		}
-
-		switch {
 		case key.Matches(msg, a.keyMap.Quit):
 			return a, tea.Quit
 		case key.Matches(msg, a.keyMap.Help):
