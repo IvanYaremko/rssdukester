@@ -88,6 +88,14 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch {
+		case key.Matches(msg, a.keyMap.Quit):
+			return a, tea.Quit
+		case key.Matches(msg, a.keyMap.Help):
+			a.help.ShowAll = !a.help.ShowAll
+			return a, nil
+		}
+
+		switch {
 		case key.Matches(msg, moveFocus...):
 			if key.Matches(msg, a.keyMap.Enter) && a.cursor == len(a.inputs) {
 				// check inputs valid

@@ -8,8 +8,8 @@ var (
 		key.WithHelp("?", "help"),
 	)
 	quitBinding = key.NewBinding(
-		key.WithKeys("q"),
-		key.WithHelp("q", "exit"),
+		key.WithKeys("Q"),
+		key.WithHelp("Q", "exit"),
 	)
 	tabBinding = key.NewBinding(
 		key.WithKeys("tab"),
@@ -33,7 +33,6 @@ type HomeKeyMap struct {
 	Enter    key.Binding
 	Add      key.Binding
 	List     key.Binding
-	Home     key.Binding
 	Help     key.Binding
 	Quit     key.Binding
 }
@@ -46,7 +45,7 @@ func (k HomeKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Enter, k.Add},
 		{k.List, k.Help, k.Quit},
-		{k.Home},
+		{k.Add},
 	}
 }
 
@@ -87,9 +86,9 @@ func (a AddKeyMap) ShortHelp() []key.Binding {
 
 func (a AddKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{a.Up, a.Down},
-		{a.Tab, a.ShiftTab},
-		{a.Help, a.Quit},
+		{a.Up, a.Down, a.Tab, a.ShiftTab},
+		{a.Quit, a.Help},
+		{a.Home},
 	}
 }
 
