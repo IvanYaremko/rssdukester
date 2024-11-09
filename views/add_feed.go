@@ -1,9 +1,11 @@
 package views
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
@@ -21,6 +23,8 @@ type addFeed struct {
 	keyMap     bindings.AddKeyMap
 	help       help.Model
 	inputError error
+	entries    []string
+	dbErr      error
 }
 
 func textValidate(s string) error {
@@ -32,10 +36,12 @@ func textValidate(s string) error {
 
 func initialiseAddFeed(q *database.Queries) addFeed {
 	a := addFeed{
-		queries: q,
-		inputs:  make([]textinput.Model, 2),
-		keyMap:  bindings.AddKeys,
-		help:    help.New(),
+		queries:    q,
+		inputs:     make([]textinput.Model, 2),
+		keyMap:     bindings.AddKeys,
+		help:       help.New(),
+		inputError: nil,
+		entries:    make([]string, 0),
 	}
 
 	var t textinput.Model
@@ -84,17 +90,19 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, moveFocus...):
 			if key.Matches(msg, a.keyMap.Enter) && a.cursor == len(a.inputs) {
-				// check inputs not empty
+				// check inputs valid
 				for i := range a.inputs {
 					input := a.inputs[i]
 					err := input.Validate(input.Value())
 					if err != nil {
 						a.inputError = err
-						return a, nil
+						a.cursor = 0
+						cmd := a.inputs[0].Focus()
+						cmds = append(cmds, cmd)
+						return a, tea.Batch(cmds...)
 					}
 				}
-				// submit add feed
-				return a, nil
+				return a, a.createFeed
 			}
 
 			if key.Matches(msg, a.keyMap.Up) || key.Matches(msg, a.keyMap.ShiftTab) {
@@ -109,19 +117,45 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				a.cursor = len(a.inputs)
 			}
 
-			cmds := make([]tea.Cmd, len(a.inputs))
 			for i := range a.inputs {
 				if i == a.cursor {
-					cmds[i] = a.inputs[i].Focus()
+					cmd := a.inputs[i].Focus()
+					cmds = append(cmds, cmd)
 					a.inputs[i].TextStyle = highlightStyle.Bold(true)
 					continue
 				}
-
 				a.inputs[i].Blur()
 				a.inputs[i].TextStyle = lipgloss.NewStyle()
 			}
 			return a, tea.Batch(cmds...)
 		}
+
+	case success:
+		a.entries = append(a.entries,
+			fmt.Sprintf("✓ added %s %s",
+				highlightStyle.Bold(false).Render(a.inputs[0].Value()),
+				highlightStyle.Bold(false).Render(a.inputs[1].Value())),
+		)
+		a.cursor = 0
+		for i := range a.inputs {
+			a.inputs[i].SetValue("")
+		}
+		cmd := a.inputs[0].Focus()
+		cmds = append(cmds, cmd)
+		a.inputError = nil
+		a.dbErr = nil
+		return a, tea.Batch(cmds...)
+
+	case failError:
+		a.dbErr = msg.err
+		a.cursor = 0
+		for i := range a.inputs {
+			a.inputs[i].SetValue("")
+		}
+		cmd := a.inputs[0].Focus()
+		cmds = append(cmds, cmd)
+		a.inputError = nil
+		return a, tea.Batch(cmds...)
 	}
 
 	cmd := a.updateInputs(msg)
@@ -133,7 +167,12 @@ func (a addFeed) View() string {
 	s := strings.Builder{}
 
 	if a.inputError != nil {
-		s.WriteString(errorStyle.Render("failed submit - input(s) empty"))
+		s.WriteString(errorStyle.Render(a.inputError.Error()))
+		s.WriteString("\n\n\n")
+	}
+
+	if a.dbErr != nil {
+		s.WriteString(errorStyle.Render("failed database insert"))
 		s.WriteString("\n\n\n")
 	}
 
@@ -152,6 +191,13 @@ func (a addFeed) View() string {
 
 	s.WriteString(button)
 	s.WriteString("\n\n\n")
+
+	for i := range a.entries {
+		s.WriteString(attentionStyle.Render(a.entries[i]))
+		s.WriteString("\n")
+	}
+
+	s.WriteString("\n\n\n")
 	s.WriteString(a.help.View(a.keyMap))
 	return baseStyle.Render(s.String())
 }
@@ -164,4 +210,18 @@ func (a *addFeed) updateInputs(msg tea.Msg) tea.Cmd {
 	}
 
 	return tea.Batch(cmds...)
+}
+
+func (a *addFeed) createFeed() tea.Msg {
+	args := database.CreateFeedParams{
+		Name:      a.inputs[0].Value(),
+		Url:       a.inputs[1].Value(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	err := a.queries.CreateFeed(context.Background(), args)
+	if err != nil {
+		return failError{err: err}
+	}
+	return success{}
 }

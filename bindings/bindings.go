@@ -5,11 +5,11 @@ import "github.com/charmbracelet/bubbles/key"
 var (
 	helpBinding = key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp("?", "toggle help"),
+		key.WithHelp("?", "help"),
 	)
 	quitBinding = key.NewBinding(
 		key.WithKeys("q"),
-		key.WithHelp("q", "quit program"),
+		key.WithHelp("q", "exit"),
 	)
 	tabBinding = key.NewBinding(
 		key.WithKeys("tab"),

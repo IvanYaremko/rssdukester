@@ -25,4 +25,7 @@ var (
 	errorStyle = lipgloss.NewStyle().
 			Foreground(warning).
 			Bold(true)
+
+	attentionStyle = lipgloss.NewStyle().
+			Foreground(attention)
 )
