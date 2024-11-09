@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -13,12 +15,16 @@ type addFeed struct {
 	queries *database.Queries
 	inputs  []textinput.Model
 	cursor  int
+	keyMap  bindings.AddKeyMap
+	help    help.Model
 }
 
 func initialiseAddFeed(q *database.Queries) addFeed {
 	a := addFeed{
 		queries: q,
 		inputs:  make([]textinput.Model, 2),
+		keyMap:  bindings.AddKeys,
+		help:    help.New(),
 	}
 
 	var t textinput.Model
@@ -83,7 +89,8 @@ func (a addFeed) View() string {
 	}
 
 	s.WriteString(button)
-
+	s.WriteString("\n\n\n")
+	s.WriteString(a.help.View(a.keyMap))
 	return baseStyle.Render(s.String())
 }
 
