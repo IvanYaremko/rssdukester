@@ -23,7 +23,6 @@ type Home struct {
 }
 
 func (h Home) Init() tea.Cmd {
-
 	return tea.SetWindowTitle("RSSDUKESTER")
 }
 
@@ -64,7 +63,8 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return h, nil
 				case 1:
 					//
-					return h, nil
+					addFeed := initialiseAddFeed(h.queries)
+					return addFeed, addFeed.Init()
 				case 2:
 					//
 					return h, nil
@@ -78,6 +78,9 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (h Home) View() string {
 	s := strings.Builder{}
+	highlightItalic := highlightStyle.Italic(true)
+	s.WriteString(highlightItalic.Render("R S S D U K E S T E R"))
+	s.WriteString("\n\n\n")
 	for i := 0; i < len(homeNav); i++ {
 		if h.cursor == i {
 			s.WriteString(highlightStyle.Render("[•] ", homeNav[i]))

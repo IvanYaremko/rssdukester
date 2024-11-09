@@ -18,4 +18,7 @@ var (
 	highlightStyle = lipgloss.NewStyle().
 			Foreground(highlight).
 			Bold(true)
+
+	subtleStyle = lipgloss.NewStyle().
+			Foreground(subtle)
 )

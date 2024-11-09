@@ -8,6 +8,7 @@ type keyMap struct {
 	Enter key.Binding
 	Add   key.Binding
 	List  key.Binding
+	Home  key.Binding
 	Help  key.Binding
 	Quit  key.Binding
 }
@@ -20,6 +21,7 @@ func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Enter, k.Add},
 		{k.List, k.Help, k.Quit},
+		{k.Home},
 	}
 }
 
@@ -38,7 +40,7 @@ var keys = keyMap{
 	),
 	Add: key.NewBinding(
 		key.WithKeys("A"),
-		key.WithHelp("'⇧'", "add feed"),
+		key.WithHelp("'A'", "add feed"),
 	),
 	Help: key.NewBinding(
 		key.WithKeys("?"),
@@ -47,5 +49,9 @@ var keys = keyMap{
 	Quit: key.NewBinding(
 		key.WithKeys("q"),
 		key.WithHelp("'q'", "quit"),
+	),
+	Home: key.NewBinding(
+		key.WithKeys("H"),
+		key.WithHelp("'H'", "home"),
 	),
 }
