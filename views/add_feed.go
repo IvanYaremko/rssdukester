@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -14,11 +15,19 @@ import (
 )
 
 type addFeed struct {
-	queries *database.Queries
-	inputs  []textinput.Model
-	cursor  int
-	keyMap  bindings.AddKeyMap
-	help    help.Model
+	queries    *database.Queries
+	inputs     []textinput.Model
+	cursor     int
+	keyMap     bindings.AddKeyMap
+	help       help.Model
+	inputError error
+}
+
+func textValidate(s string) error {
+	if s == "" {
+		return errors.New("empty input(s)")
+	}
+	return nil
 }
 
 func initialiseAddFeed(q *database.Queries) addFeed {
@@ -44,6 +53,7 @@ func initialiseAddFeed(q *database.Queries) addFeed {
 			t.Placeholder = "https://hnrss.org/frontpage"
 		}
 		a.inputs[i] = t
+		a.inputs[i].Validate = textValidate
 	}
 
 	return a
@@ -74,7 +84,16 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, moveFocus...):
 			if key.Matches(msg, a.keyMap.Enter) && a.cursor == len(a.inputs) {
-				// submit
+				// check inputs not empty
+				for i := range a.inputs {
+					input := a.inputs[i]
+					err := input.Validate(input.Value())
+					if err != nil {
+						a.inputError = err
+						return a, nil
+					}
+				}
+				// submit add feed
 				return a, nil
 			}
 
@@ -112,6 +131,11 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a addFeed) View() string {
 	s := strings.Builder{}
+
+	if a.inputError != nil {
+		s.WriteString(errorStyle.Render("failed submit - input(s) empty"))
+		s.WriteString("\n\n\n")
+	}
 
 	for i := range a.inputs {
 		s.WriteString(a.inputs[i].View())
