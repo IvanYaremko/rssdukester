@@ -24,20 +24,20 @@ func (i item) FilterValue() string { return i.name }
 func (i item) Description() string { return i.url }
 func (i item) Title() string       { return i.name }
 
-type listFeeds struct {
+type rssList struct {
 	queries *database.Queries
 	list    list.Model
 	keys    bindings.ListKeysMap
 }
 
-func initialiseListFeeds(q *database.Queries) listFeeds {
+func initialiseRssList(q *database.Queries) rssList {
 
-	delegate := listItemDelegate(q)
+	delegate := rssItemDelegate(q)
 
 	items := make([]list.Item, 0)
 
 	feedsList := list.New(items, delegate, 30, 30)
-	feedsList.Title = "rss feeds"
+	feedsList.Title = "RSS FEEDS"
 	feedsList.Styles.Title = styles.HighlightStyle
 	feedsList.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
@@ -50,8 +50,7 @@ func initialiseListFeeds(q *database.Queries) listFeeds {
 			bindings.ListKeys.Back,
 		}
 	}
-	feedsList.KeyMap.Quit.SetEnabled(false)
-	l := listFeeds{
+	l := rssList{
 		queries: q,
 		list:    feedsList,
 		keys:    bindings.ListKeys,
@@ -59,11 +58,11 @@ func initialiseListFeeds(q *database.Queries) listFeeds {
 	return l
 }
 
-func (l listFeeds) Init() tea.Cmd {
-	return l.getFeeds
+func (l rssList) Init() tea.Cmd {
+	return l.getRssFeeds
 }
 
-func (l listFeeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
@@ -98,11 +97,11 @@ func (l listFeeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return l, tea.Batch(cmds...)
 }
 
-func (l listFeeds) View() string {
+func (l rssList) View() string {
 	return base.Render(l.list.View())
 }
 
-func (l *listFeeds) getFeeds() tea.Msg {
+func (l *rssList) getRssFeeds() tea.Msg {
 	feeds, err := l.queries.GetFeeds(context.Background())
 	if err != nil {
 		return failError{error: err}

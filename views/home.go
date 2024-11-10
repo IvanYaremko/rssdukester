@@ -58,8 +58,8 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, h.keys.Enter):
 				switch h.cursor {
 				case 0:
-					listFeeds := initialiseListFeeds(h.queries)
-					return listFeeds, listFeeds.Init()
+					rssFeeds := initialiseRssList(h.queries)
+					return rssFeeds, rssFeeds.Init()
 				case 1:
 					//
 					addFeed := initialiseAddFeed(h.queries)
