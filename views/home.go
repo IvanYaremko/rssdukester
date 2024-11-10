@@ -14,7 +14,6 @@ import (
 var homeNav = []string{
 	"View",
 	"Add",
-	"Quit",
 }
 
 type Home struct {

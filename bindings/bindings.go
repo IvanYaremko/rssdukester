@@ -153,8 +153,8 @@ func (l ListItemDelegateKeyMap) FullHelp() [][]key.Binding {
 var ListItemDelegateKeys = ListItemDelegateKeyMap{
 	Choose: enterBinding,
 	Remove: key.NewBinding(
-		key.WithKeys("x", "backspace"),
-		key.WithHelp("x", "delete"),
+		key.WithKeys("X", "backspace"),
+		key.WithHelp("X", "delete"),
 	),
 }
 
