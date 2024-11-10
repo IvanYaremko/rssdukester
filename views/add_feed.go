@@ -9,6 +9,7 @@ import (
 
 	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -47,14 +48,14 @@ func initialiseAddFeed(q *database.Queries) addFeed {
 	var t textinput.Model
 	for i := range a.inputs {
 		t = textinput.New()
-		t.Cursor.Style = baseStyle
+		t.Cursor.Style = styles.BaseStyle
 		t.CharLimit = 64
 
 		switch i {
 		case 0:
 			t.Placeholder = "hackernews"
 			t.Focus()
-			t.TextStyle = highlightStyle.Bold(false)
+			t.TextStyle = styles.HighlightStyle.Bold(false)
 		case 1:
 			t.Placeholder = "https://hnrss.org/frontpage"
 		}
@@ -135,7 +136,7 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if i == a.cursor {
 					cmd := a.inputs[i].Focus()
 					cmds = append(cmds, cmd)
-					a.inputs[i].TextStyle = highlightStyle.Bold(true)
+					a.inputs[i].TextStyle = styles.HighlightStyle.Bold(true)
 					continue
 				}
 				a.inputs[i].Blur()
@@ -147,8 +148,8 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case success:
 		a.entries = append(a.entries,
 			fmt.Sprintf("✓ added %s %s",
-				highlightStyle.Bold(false).Render(a.inputs[0].Value()),
-				highlightStyle.Bold(false).Render(a.inputs[1].Value())),
+				styles.HighlightStyle.Bold(false).Render(a.inputs[0].Value()),
+				styles.HighlightStyle.Bold(false).Render(a.inputs[1].Value())),
 		)
 		a.cursor = 0
 		for i := range a.inputs {
@@ -181,12 +182,12 @@ func (a addFeed) View() string {
 	s := strings.Builder{}
 
 	if a.inputError != nil {
-		s.WriteString(errorStyle.Render(a.inputError.Error()))
+		s.WriteString(styles.ErrorStyle.Render(a.inputError.Error()))
 		s.WriteString("\n\n\n")
 	}
 
 	if a.dbErr != nil {
-		s.WriteString(errorStyle.Render("failed database insert"))
+		s.WriteString(styles.ErrorStyle.Render("failed database insert"))
 		s.WriteString("\n\n\n")
 	}
 
@@ -197,23 +198,23 @@ func (a addFeed) View() string {
 		}
 	}
 	s.WriteString("\n\n")
-	button := fmt.Sprintf("[ %s ]", subtleStyle.Render("submit"))
+	button := fmt.Sprintf("[ %s ]", styles.SubtleStyle.Render("submit"))
 
 	if a.cursor == len(a.inputs) {
-		button = highlightStyle.Render("[ Submit ]")
+		button = styles.HighlightStyle.Render("[ Submit ]")
 	}
 
 	s.WriteString(button)
 	s.WriteString("\n\n\n")
 
 	for i := range a.entries {
-		s.WriteString(attentionStyle.Render(a.entries[i]))
+		s.WriteString(styles.AttentionStyle.Render(a.entries[i]))
 		s.WriteString("\n")
 	}
 
 	s.WriteString("\n\n\n")
 	s.WriteString(a.help.View(a.keyMap))
-	return baseStyle.Render(s.String())
+	return styles.BaseStyle.Render(s.String())
 }
 
 func (a *addFeed) updateInputs(msg tea.Msg) tea.Cmd {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
+	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -79,12 +80,12 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (h Home) View() string {
 	s := strings.Builder{}
-	highlightItalic := highlightStyle.Italic(true)
+	highlightItalic := styles.HighlightStyle.Italic(true)
 	s.WriteString(highlightItalic.Render("R S S D U K E S T E R"))
 	s.WriteString("\n\n\n")
 	for i := 0; i < len(homeNav); i++ {
 		if h.cursor == i {
-			s.WriteString(highlightStyle.Render("[•] ", homeNav[i]))
+			s.WriteString(styles.HighlightStyle.Render("[•] ", homeNav[i]))
 		} else {
 			s.WriteString("[ ] " + homeNav[i])
 		}
@@ -93,7 +94,7 @@ func (h Home) View() string {
 	}
 	s.WriteString("\n\n\n")
 	s.WriteString(h.help.View(h.keys))
-	return baseStyle.Render(s.String())
+	return styles.BaseStyle.Render(s.String())
 }
 
 func InitHomeModel(q *database.Queries) Home {
