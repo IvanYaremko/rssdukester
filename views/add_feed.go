@@ -81,6 +81,10 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.keyMap.Enter,
 	}
 	switch msg := msg.(type) {
+
+	case tea.WindowSizeMsg:
+		a.help.Width = msg.Width
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
