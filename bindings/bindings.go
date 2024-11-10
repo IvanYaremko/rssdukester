@@ -140,8 +140,8 @@ func NewListItemDelegateKeyMap() ListItemDelegateKeyMap {
 			key.WithHelp("enter", "choose"),
 		),
 		Remove: key.NewBinding(
-			key.WithKeys("x", "backspace"),
-			key.WithHelp("x", "delete"),
+			key.WithKeys("X", "backspace"),
+			key.WithHelp("X", "delete"),
 		),
 	}
 }

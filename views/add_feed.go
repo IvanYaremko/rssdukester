@@ -87,8 +87,8 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.help.Width = msg.Width
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
+		switch msg.Type {
+		case tea.KeyCtrlC:
 			return a, tea.Quit
 		}
 		switch {
@@ -162,7 +162,7 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return a, tea.Batch(cmds...)
 
 	case failError:
-		a.dbErr = msg.err
+		a.dbErr = msg.error
 		a.cursor = 0
 		for i := range a.inputs {
 			a.inputs[i].SetValue("")
@@ -236,7 +236,7 @@ func (a *addFeed) createFeed() tea.Msg {
 	}
 	err := a.queries.CreateFeed(context.Background(), args)
 	if err != nil {
-		return failError{err: err}
+		return failError{error: err}
 	}
 	return success{}
 }

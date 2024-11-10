@@ -37,8 +37,8 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		{
-			switch msg.String() {
-			case "ctrl+c":
+			switch msg.Type {
+			case tea.KeyCtrlC:
 				return h, tea.Quit
 			}
 			switch {
@@ -61,8 +61,8 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, h.keys.Enter):
 				switch h.cursor {
 				case 0:
-					//
-					return h, nil
+					listFeeds := initialiseListFeeds(h.queries)
+					return listFeeds, listFeeds.Init()
 				case 1:
 					//
 					addFeed := initialiseAddFeed(h.queries)
