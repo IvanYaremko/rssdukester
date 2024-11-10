@@ -1,6 +1,8 @@
 package bindings
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"github.com/charmbracelet/bubbles/key"
+)
 
 var (
 	helpBinding = key.NewBinding(
@@ -31,6 +33,10 @@ var (
 		key.WithKeys("b"),
 		key.WithHelp("b", "back"),
 	)
+	ctrlcBinding = key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
+	)
 )
 
 type HomeKeyMap struct {
@@ -43,6 +49,7 @@ type HomeKeyMap struct {
 	List     key.Binding
 	Help     key.Binding
 	Quit     key.Binding
+	Ctrlc    key.Binding
 }
 
 func (k HomeKeyMap) ShortHelp() []key.Binding {
@@ -73,8 +80,9 @@ var HomeKeys = HomeKeyMap{
 		key.WithKeys("A"),
 		key.WithHelp("A", "add feed"),
 	),
-	Help: helpBinding,
-	Quit: quitBinding,
+	Help:  helpBinding,
+	Quit:  quitBinding,
+	Ctrlc: ctrlcBinding,
 }
 
 type AddKeyMap struct {
@@ -86,6 +94,7 @@ type AddKeyMap struct {
 	Quit     key.Binding
 	Help     key.Binding
 	Back     key.Binding
+	Ctrlc    key.Binding
 }
 
 func (a AddKeyMap) ShortHelp() []key.Binding {
@@ -95,7 +104,7 @@ func (a AddKeyMap) ShortHelp() []key.Binding {
 func (a AddKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{a.Up, a.Down, a.Tab, a.ShiftTab},
-		{a.Quit, a.Help, a.Back},
+		{a.Help, a.Back, a.Quit},
 	}
 }
 
@@ -113,10 +122,11 @@ var AddKeys = AddKeyMap{
 	Enter:    enterBinding,
 	Help:     helpBinding,
 	Quit: key.NewBinding(
-		key.WithKeys("Q"),
-		key.WithHelp("Q", "quit"),
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
 	),
-	Back: escBinding,
+	Back:  escBinding,
+	Ctrlc: ctrlcBinding,
 }
 
 type ListItemDelegateKeyMap struct {
@@ -149,9 +159,13 @@ var ListItemDelegateKeys = ListItemDelegateKeyMap{
 }
 
 type ListKeysMap struct {
-	Back key.Binding
+	Esc   key.Binding
+	Back  key.Binding
+	Ctrlc key.Binding
 }
 
 var ListKeys = ListKeysMap{
-	Back: backBinding,
+	Esc:   escBinding,
+	Back:  backBinding,
+	Ctrlc: ctrlcBinding,
 }

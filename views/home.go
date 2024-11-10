@@ -37,11 +37,9 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		{
-			switch msg.Type {
-			case tea.KeyCtrlC:
-				return h, tea.Quit
-			}
 			switch {
+			case key.Matches(msg, h.keys.Ctrlc):
+				return h, tea.Quit
 			case key.Matches(msg, h.keys.Up):
 				if h.cursor == 0 {
 					h.cursor = len(homeNav) - 1

@@ -70,17 +70,15 @@ func (l listFeeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.list.SetSize(msg.Width-x, msg.Height-y)
 
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
+		switch {
+		case key.Matches(msg, bindings.ListKeys.Ctrlc):
 			return l, tea.Quit
-		case tea.KeyEsc:
+		case key.Matches(msg, bindings.ListKeys.Esc):
 			if l.list.FilterState() == list.Filtering {
 				l.list.ResetFilter()
 				return l, nil
 			}
 			return l, nil
-		}
-		switch {
 		case key.Matches(msg, bindings.ListKeys.Back):
 			home := InitHomeModel(l.queries)
 			return home, home.Init()

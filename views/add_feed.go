@@ -87,16 +87,12 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.help.Width = msg.Width
 
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
-			return a, tea.Quit
-		}
 		switch {
+		case key.Matches(msg, a.keyMap.Ctrlc):
+			return a, tea.Quit
 		case key.Matches(msg, a.keyMap.Back):
 			home := InitHomeModel(a.queries)
 			return home, home.Init()
-		case key.Matches(msg, a.keyMap.Quit):
-			return a, tea.Quit
 		case key.Matches(msg, a.keyMap.Help):
 			a.help.ShowAll = !a.help.ShowAll
 			return a, nil
