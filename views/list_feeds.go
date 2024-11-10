@@ -27,6 +27,7 @@ func (i item) Title() string       { return i.name }
 type listFeeds struct {
 	queries *database.Queries
 	list    list.Model
+	keys    bindings.ListKeysMap
 }
 
 func initialiseListFeeds(q *database.Queries) listFeeds {
@@ -53,6 +54,7 @@ func initialiseListFeeds(q *database.Queries) listFeeds {
 	l := listFeeds{
 		queries: q,
 		list:    feedsList,
+		keys:    bindings.ListKeys,
 	}
 	return l
 }
@@ -71,15 +73,15 @@ func (l listFeeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, bindings.ListKeys.Ctrlc):
+		case key.Matches(msg, l.keys.Ctrlc):
 			return l, tea.Quit
-		case key.Matches(msg, bindings.ListKeys.Esc):
+		case key.Matches(msg, l.keys.Esc):
 			if l.list.FilterState() == list.Filtering {
 				l.list.ResetFilter()
 				return l, nil
 			}
 			return l, nil
-		case key.Matches(msg, bindings.ListKeys.Back):
+		case key.Matches(msg, l.keys.Back):
 			home := InitHomeModel(l.queries)
 			return home, home.Init()
 		}
