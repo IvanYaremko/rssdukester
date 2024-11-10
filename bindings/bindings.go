@@ -8,8 +8,8 @@ var (
 		key.WithHelp("?", "help"),
 	)
 	quitBinding = key.NewBinding(
-		key.WithKeys("Q"),
-		key.WithHelp("Q", "exit"),
+		key.WithKeys("q"),
+		key.WithHelp("q", "exit"),
 	)
 	tabBinding = key.NewBinding(
 		key.WithKeys("tab"),
@@ -26,6 +26,10 @@ var (
 	escBinding = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "back"),
+	)
+	backBinding = key.NewBinding(
+		key.WithKeys("b"),
+		key.WithHelp("b", "back"),
 	)
 )
 
@@ -108,8 +112,11 @@ var AddKeys = AddKeyMap{
 	ShiftTab: shiftTabBinding,
 	Enter:    enterBinding,
 	Help:     helpBinding,
-	Quit:     quitBinding,
-	Back:     escBinding,
+	Quit: key.NewBinding(
+		key.WithKeys("Q"),
+		key.WithHelp("Q", "quit"),
+	),
+	Back: escBinding,
 }
 
 type ListItemDelegateKeyMap struct {
@@ -133,15 +140,18 @@ func (l ListItemDelegateKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-func NewListItemDelegateKeyMap() ListItemDelegateKeyMap {
-	return ListItemDelegateKeyMap{
-		Choose: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "choose"),
-		),
-		Remove: key.NewBinding(
-			key.WithKeys("X", "backspace"),
-			key.WithHelp("X", "delete"),
-		),
-	}
+var ListItemDelegateKeys = ListItemDelegateKeyMap{
+	Choose: enterBinding,
+	Remove: key.NewBinding(
+		key.WithKeys("x", "backspace"),
+		key.WithHelp("x", "delete"),
+	),
+}
+
+type ListKeysMap struct {
+	Back key.Binding
+}
+
+var ListKeys = ListKeysMap{
+	Back: backBinding,
 }

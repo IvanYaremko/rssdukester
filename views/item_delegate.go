@@ -10,7 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func listItemDelegate(keys bindings.ListItemDelegateKeyMap, q *database.Queries) list.DefaultDelegate {
+func listItemDelegate(q *database.Queries) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
@@ -25,15 +25,15 @@ func listItemDelegate(keys bindings.ListItemDelegateKeyMap, q *database.Queries)
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, keys.Choose):
+			case key.Matches(msg, bindings.ListItemDelegateKeys.Choose):
 				return m.NewStatusMessage("You chose " + title)
 
-			case key.Matches(msg, keys.Remove):
+			case key.Matches(msg, bindings.ListItemDelegateKeys.Remove):
 				index := m.Index()
 				item := m.SelectedItem().(item)
 				m.RemoveItem(index)
 				if len(m.Items()) == 0 {
-					keys.Remove.SetEnabled(false)
+					bindings.ListItemDelegateKeys.Remove.SetEnabled(false)
 				}
 				return tea.Batch(removeFeed(item, q),
 					m.NewStatusMessage("You deleted "+title))

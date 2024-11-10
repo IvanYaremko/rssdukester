@@ -30,11 +30,8 @@ type listFeeds struct {
 }
 
 func initialiseListFeeds(q *database.Queries) listFeeds {
-	var (
-		delegateKeys = bindings.NewListItemDelegateKeyMap()
-	)
 
-	delegate := listItemDelegate(delegateKeys, q)
+	delegate := listItemDelegate(q)
 
 	items := make([]list.Item, 0)
 
@@ -43,10 +40,16 @@ func initialiseListFeeds(q *database.Queries) listFeeds {
 	feedsList.Styles.Title = styles.HighlightStyle
 	feedsList.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			delegateKeys.Choose,
-			delegateKeys.Remove,
+			bindings.ListItemDelegateKeys.Choose,
+			bindings.ListItemDelegateKeys.Remove,
 		}
 	}
+	feedsList.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			bindings.ListKeys.Back,
+		}
+	}
+	feedsList.KeyMap.Quit.SetEnabled(false)
 	l := listFeeds{
 		queries: q,
 		list:    feedsList,
@@ -71,6 +74,14 @@ func (l listFeeds) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			return l, tea.Quit
 		case tea.KeyEsc:
+			if l.list.FilterState() == list.Filtering {
+				l.list.ResetFilter()
+				return l, nil
+			}
+			return l, nil
+		}
+		switch {
+		case key.Matches(msg, bindings.ListKeys.Back):
 			home := InitHomeModel(l.queries)
 			return home, home.Init()
 		}
