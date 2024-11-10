@@ -111,3 +111,37 @@ var AddKeys = AddKeyMap{
 	Quit:     quitBinding,
 	Back:     escBinding,
 }
+
+type ListItemDelegateKeyMap struct {
+	Choose key.Binding
+	Remove key.Binding
+}
+
+func (l ListItemDelegateKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		l.Choose,
+		l.Remove,
+	}
+}
+
+func (l ListItemDelegateKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{
+			l.Choose,
+			l.Remove,
+		},
+	}
+}
+
+func NewListItemDelegateKeyMap() ListItemDelegateKeyMap {
+	return ListItemDelegateKeyMap{
+		Choose: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "choose"),
+		),
+		Remove: key.NewBinding(
+			key.WithKeys("x", "backspace"),
+			key.WithHelp("x", "delete"),
+		),
+	}
+}
