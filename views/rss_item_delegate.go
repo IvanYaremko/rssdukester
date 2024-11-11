@@ -34,7 +34,8 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 		case tea.KeyMsg:
 			switch {
 			case key.Matches(msg, bindings.ListItemDelegateKeys.Choose):
-				return m.NewStatusMessage("You chose " + title)
+				item := m.SelectedItem().(item)
+				return transitionView(item)
 
 			case key.Matches(msg, bindings.ListItemDelegateKeys.Remove):
 				index := m.Index()
@@ -63,5 +64,15 @@ func removeFeed(item item, q *database.Queries) tea.Cmd {
 			return failError{error: err}
 		}
 		return success{}
+	}
+}
+
+type selectedFeed struct {
+	rssFeed item
+}
+
+func transitionView(i item) tea.Cmd {
+	return func() tea.Msg {
+		return selectedFeed{rssFeed: i}
 	}
 }

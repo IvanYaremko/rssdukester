@@ -31,7 +31,6 @@ type rssList struct {
 }
 
 func initialiseRssList(q *database.Queries) rssList {
-
 	delegate := rssItemDelegate(q)
 
 	items := make([]list.Item, 0)
@@ -88,6 +87,10 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case successItems:
 		cmd := l.list.SetItems(msg.items)
 		return l, cmd
+
+	case selectedFeed:
+		feed := initialiseFeed(l.queries, msg.rssFeed)
+		return feed, feed.Init()
 	}
 
 	newList, cmd := l.list.Update(msg)
