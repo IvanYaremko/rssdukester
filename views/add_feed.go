@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/help"
@@ -21,7 +20,7 @@ type addFeed struct {
 	queries    *database.Queries
 	inputs     []textinput.Model
 	cursor     int
-	keyMap     bindings.AddKeyMap
+	keyMap     addKeyMap
 	help       help.Model
 	inputError error
 	entries    []string
@@ -37,9 +36,18 @@ func textValidate(s string) error {
 
 func initialiseAddFeed(q *database.Queries) addFeed {
 	a := addFeed{
-		queries:    q,
-		inputs:     make([]textinput.Model, 2),
-		keyMap:     bindings.AddKeys,
+		queries: q,
+		inputs:  make([]textinput.Model, 2),
+		keyMap: addKeyMap{
+			Up:       strictUpBinding,
+			Down:     strictDownBinding,
+			Tab:      tabBinding,
+			ShiftTab: shiftTabBinding,
+			Enter:    enterBinding,
+			Help:     helpBinding,
+			Back:     backBinding,
+			Ctrlc:    ctrlcBinding,
+		},
 		help:       help.New(),
 		inputError: nil,
 		entries:    make([]string, 0),
