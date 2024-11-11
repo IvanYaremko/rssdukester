@@ -20,7 +20,7 @@ type addFeed struct {
 	queries    *database.Queries
 	inputs     []textinput.Model
 	cursor     int
-	keyMap     addKeyMap
+	keys       addKeyMap
 	help       help.Model
 	inputError error
 	entries    []string
@@ -38,7 +38,7 @@ func initialiseAddFeed(q *database.Queries) addFeed {
 	a := addFeed{
 		queries: q,
 		inputs:  make([]textinput.Model, 2),
-		keyMap: addKeyMap{
+		keys: addKeyMap{
 			Up:       strictUpBinding,
 			Down:     strictDownBinding,
 			Tab:      tabBinding,
@@ -217,7 +217,7 @@ func (a addFeed) View() string {
 	}
 
 	s.WriteString("\n\n\n")
-	s.WriteString(a.help.View(a.keyMap))
+	s.WriteString(a.help.View(a.keys))
 	return styles.BaseStyle.Render(s.String())
 }
 
