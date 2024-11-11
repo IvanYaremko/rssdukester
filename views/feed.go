@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
@@ -28,7 +27,6 @@ type feed struct {
 	spinner spinner.Model
 	loading bool
 	list    list.Model
-	keys    bindings.ListKeysMap
 }
 
 func initialiseFeed(q *database.Queries, i rssItem) feed {
@@ -41,12 +39,12 @@ func initialiseFeed(q *database.Queries, i rssItem) feed {
 	l.Styles.Title = styles.HighlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			bindings.ListItemDelegateKeys.Choose,
+			enterBinding,
 		}
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			bindings.ListKeys.Back,
+			backBinding,
 		}
 	}
 
@@ -55,7 +53,6 @@ func initialiseFeed(q *database.Queries, i rssItem) feed {
 		item:    i,
 		spinner: s,
 		loading: true,
-		keys:    bindings.ListKeys,
 		list:    l,
 	}
 }
@@ -70,9 +67,9 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, f.keys.Ctrlc):
+		case key.Matches(msg, ctrlcBinding):
 			return f, tea.Quit
-		case key.Matches(msg, f.keys.Back):
+		case key.Matches(msg, backBinding):
 			rssList := initialiseRssList(f.queries)
 			return rssList, rssList.Init()
 		}
