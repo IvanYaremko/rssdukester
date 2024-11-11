@@ -3,7 +3,6 @@ package views
 import (
 	"strings"
 
-	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/help"
@@ -18,9 +17,28 @@ var homeNav = []string{
 
 type Home struct {
 	queries *database.Queries
-	keys    bindings.HomeKeyMap
+	keys    homeKeyMap
 	help    help.Model
 	cursor  int
+}
+
+func InitHomeModel(q *database.Queries) Home {
+	return Home{
+		queries: q,
+		keys: homeKeyMap{
+			Up:       upBinding,
+			Down:     downBinding,
+			Tab:      tabBinding,
+			ShiftTab: shiftTabBinding,
+			Enter:    enterBinding,
+			Add:      addViewBiding,
+			Help:     helpBinding,
+			Quit:     quitBinding,
+			Ctrlc:    ctrlcBinding,
+		},
+		help:   help.New(),
+		cursor: 0,
+	}
 }
 
 func (h Home) Init() tea.Cmd {
@@ -92,13 +110,4 @@ func (h Home) View() string {
 	s.WriteString("\n\n\n")
 	s.WriteString(h.help.View(h.keys))
 	return styles.BaseStyle.Render(s.String())
-}
-
-func InitHomeModel(q *database.Queries) Home {
-	return Home{
-		queries: q,
-		keys:    bindings.HomeKeys,
-		help:    help.New(),
-		cursor:  0,
-	}
 }

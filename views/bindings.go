@@ -53,9 +53,13 @@ var (
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
 	)
+	addViewBiding = key.NewBinding(
+		key.WithKeys("A"),
+		key.WithHelp("A", "Add view"),
+	)
 )
 
-type HomeKeyMap struct {
+type homeKeyMap struct {
 	Up       key.Binding
 	Down     key.Binding
 	Tab      key.Binding
@@ -68,11 +72,11 @@ type HomeKeyMap struct {
 	Ctrlc    key.Binding
 }
 
-func (k HomeKeyMap) ShortHelp() []key.Binding {
+func (k homeKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.Up, k.Down, k.Enter, k.Quit, k.Help}
 }
 
-func (k HomeKeyMap) FullHelp() [][]key.Binding {
+func (k homeKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Enter, k.Add},
 		{k.List, k.Help, k.Quit},
@@ -80,7 +84,7 @@ func (k HomeKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var HomeKeys = HomeKeyMap{
+var HomeKeys = homeKeyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
 		key.WithHelp("↑/k", "up"),
