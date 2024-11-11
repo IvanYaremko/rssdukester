@@ -24,14 +24,14 @@ func (f feedItem) Title() string       { return f.name }
 
 type feed struct {
 	queries *database.Queries
-	item    item
+	item    rssItem
 	spinner spinner.Model
 	loading bool
 	list    list.Model
 	keys    bindings.ListKeysMap
 }
 
-func initialiseFeed(q *database.Queries, i item) feed {
+func initialiseFeed(q *database.Queries, i rssItem) feed {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 

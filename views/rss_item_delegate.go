@@ -3,7 +3,6 @@ package views
 import (
 	"context"
 
-	"github.com/IvanYaremko/rssdukester/bindings"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
@@ -22,9 +21,9 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
-		var title string
-
-		if i, ok := m.SelectedItem().(item); ok {
+		title := ""
+		item := m.SelectedItem().(rssItem)
+		if i, ok := m.SelectedItem().(rssItem); ok {
 			title = i.name
 		} else {
 			return nil
@@ -33,16 +32,14 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, bindings.ListItemDelegateKeys.Choose):
-				item := m.SelectedItem().(item)
+			case key.Matches(msg, enterBinding):
 				return transitionView(item)
 
-			case key.Matches(msg, bindings.ListItemDelegateKeys.Remove):
+			case key.Matches(msg, removeBinding):
 				index := m.Index()
-				item := m.SelectedItem().(item)
 				m.RemoveItem(index)
 				if len(m.Items()) == 0 {
-					bindings.ListItemDelegateKeys.Remove.SetEnabled(false)
+					removeBinding.SetEnabled(false)
 				}
 				return tea.Batch(removeFeed(item, q),
 					m.NewStatusMessage("You deleted "+title))
@@ -57,7 +54,7 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 	return d
 }
 
-func removeFeed(item item, q *database.Queries) tea.Cmd {
+func removeFeed(item rssItem, q *database.Queries) tea.Cmd {
 	return func() tea.Msg {
 		err := q.DeleteFeed(context.Background(), item.url)
 		if err != nil {
@@ -68,10 +65,10 @@ func removeFeed(item item, q *database.Queries) tea.Cmd {
 }
 
 type selectedFeed struct {
-	rssFeed item
+	rssFeed rssItem
 }
 
-func transitionView(i item) tea.Cmd {
+func transitionView(i rssItem) tea.Cmd {
 	return func() tea.Msg {
 		return selectedFeed{rssFeed: i}
 	}

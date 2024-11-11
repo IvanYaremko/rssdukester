@@ -57,6 +57,10 @@ var (
 		key.WithKeys("A"),
 		key.WithHelp("A", "Add view"),
 	)
+	removeBinding = key.NewBinding(
+		key.WithKeys("X"),
+		key.WithHelp("X", "remove"),
+	)
 )
 
 type homeKeyMap struct {
@@ -84,27 +88,6 @@ func (k homeKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var HomeKeys = homeKeyMap{
-	Up: key.NewBinding(
-		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "up"),
-	),
-	Down: key.NewBinding(
-		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "down"),
-	),
-	Tab:      tabBinding,
-	ShiftTab: shiftTabBinding,
-	Enter:    enterBinding,
-	Add: key.NewBinding(
-		key.WithKeys("A"),
-		key.WithHelp("A", "add feed"),
-	),
-	Help:  helpBinding,
-	Quit:  quitBinding,
-	Ctrlc: ctrlcBinding,
-}
-
 type addKeyMap struct {
 	Up       key.Binding
 	Down     key.Binding
@@ -127,43 +110,23 @@ func (a addKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-type ListItemDelegateKeyMap struct {
+type rssItemKeyMap struct {
 	Choose key.Binding
 	Remove key.Binding
 }
 
-func (l ListItemDelegateKeyMap) ShortHelp() []key.Binding {
+func (l rssItemKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		l.Choose,
 		l.Remove,
 	}
 }
 
-func (l ListItemDelegateKeyMap) FullHelp() [][]key.Binding {
+func (l rssItemKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
 			l.Choose,
 			l.Remove,
 		},
 	}
-}
-
-var ListItemDelegateKeys = ListItemDelegateKeyMap{
-	Choose: enterBinding,
-	Remove: key.NewBinding(
-		key.WithKeys("X", "backspace"),
-		key.WithHelp("X", "delete"),
-	),
-}
-
-type ListKeysMap struct {
-	Esc   key.Binding
-	Back  key.Binding
-	Ctrlc key.Binding
-}
-
-var ListKeys = ListKeysMap{
-	Esc:   escBinding,
-	Back:  backBinding,
-	Ctrlc: ctrlcBinding,
 }

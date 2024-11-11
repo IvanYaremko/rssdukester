@@ -83,11 +83,11 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	moveFocus := []key.Binding{
-		a.keyMap.Down,
-		a.keyMap.Tab,
-		a.keyMap.Up,
-		a.keyMap.ShiftTab,
-		a.keyMap.Enter,
+		a.keys.Down,
+		a.keys.Tab,
+		a.keys.Up,
+		a.keys.ShiftTab,
+		a.keys.Enter,
 	}
 	switch msg := msg.(type) {
 
@@ -96,19 +96,19 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, a.keyMap.Ctrlc):
+		case key.Matches(msg, a.keys.Ctrlc):
 			return a, tea.Quit
-		case key.Matches(msg, a.keyMap.Back):
+		case key.Matches(msg, a.keys.Back):
 			home := InitHomeModel(a.queries)
 			return home, home.Init()
-		case key.Matches(msg, a.keyMap.Help):
+		case key.Matches(msg, a.keys.Help):
 			a.help.ShowAll = !a.help.ShowAll
 			return a, nil
 		}
 
 		switch {
 		case key.Matches(msg, moveFocus...):
-			if key.Matches(msg, a.keyMap.Enter) && a.cursor == len(a.inputs) {
+			if key.Matches(msg, a.keys.Enter) && a.cursor == len(a.inputs) {
 				// check inputs valid
 				for i := range a.inputs {
 					input := a.inputs[i]
@@ -124,7 +124,7 @@ func (a addFeed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return a, a.createFeed
 			}
 
-			if key.Matches(msg, a.keyMap.Up) || key.Matches(msg, a.keyMap.ShiftTab) {
+			if key.Matches(msg, a.keys.Up) || key.Matches(msg, a.keys.ShiftTab) {
 				a.cursor--
 			} else {
 				a.cursor++
