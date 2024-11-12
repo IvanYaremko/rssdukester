@@ -1,7 +1,10 @@
 package views
 
 import (
+	"context"
+	"encoding/xml"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
@@ -12,7 +15,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// xml object
 type feedItem struct {
 	name string
 }
@@ -35,7 +37,7 @@ func initialiseFeed(q *database.Queries, i rssItem) feed {
 	s.Style = styles.HighlightStyle
 
 	items := make([]list.Item, 0)
-	l := list.New(items, list.NewDefaultDelegate(), 30, 30)
+	l := list.New(items, list.NewDefaultDelegate(), 100, 40)
 	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.name))
 	l.Styles.Title = styles.HighlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
@@ -58,8 +60,54 @@ func initialiseFeed(q *database.Queries, i rssItem) feed {
 	}
 }
 
+type rssResponse struct {
+	Channel struct {
+		Title       string            `xml:"title"`
+		Link        string            `xml:"link"`
+		Description string            `xml:"description"`
+		Item        []rssItemResponse `xml:"item"`
+	} `xml:"channel"`
+}
+
+type rssItemResponse struct {
+	Title       string `xml:"title"`
+	Link        string `xml:"link"`
+	Description string `xml:"description"`
+	PubDate     string `xml:"pubDate"`
+}
+
+func (f feed) fetchRssFeed() tea.Msg {
+	req, err := http.NewRequestWithContext(context.Background(), "GET", f.item.url, nil)
+	if err != nil {
+		return failError{error: err}
+	}
+
+	req.Header.Add("User-Agent", "rssdukester")
+	client := http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return failError{error: err}
+	}
+	defer response.Body.Close()
+
+	decoder := xml.NewDecoder(response.Body)
+	rss := rssResponse{}
+	if err := decoder.Decode(&rss); err != nil {
+		return failError{error: err}
+	}
+
+	items := make([]list.Item, len(rss.Channel.Item))
+	for i, val := range rss.Channel.Item {
+		items[i] = feedItem{
+			name: val.Title,
+		}
+	}
+
+	return successItems{items: items}
+}
+
 func (f feed) Init() tea.Cmd {
-	return f.spinner.Tick
+	return tea.Batch(f.spinner.Tick, f.fetchRssFeed)
 }
 
 func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -74,6 +122,10 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			rssList := initialiseRssList(f.queries)
 			return rssList, rssList.Init()
 		}
+	case successItems:
+		cmd := f.list.SetItems(msg.items)
+		f.loading = false
+		return f, cmd
 	}
 
 	newList, cmd := f.list.Update(msg)
