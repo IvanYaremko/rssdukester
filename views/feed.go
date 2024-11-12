@@ -32,6 +32,7 @@ type feed struct {
 func initialiseFeed(q *database.Queries, i rssItem) feed {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
+	s.Style = styles.HighlightStyle
 
 	items := make([]list.Item, 0)
 	l := list.New(items, list.NewDefaultDelegate(), 30, 30)
@@ -58,7 +59,7 @@ func initialiseFeed(q *database.Queries, i rssItem) feed {
 }
 
 func (f feed) Init() tea.Cmd {
-	return nil
+	return f.spinner.Tick
 }
 
 func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -79,6 +80,9 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 	f.list = newList
 
+	f.spinner, cmd = f.spinner.Update(msg)
+	cmds = append(cmds, cmd)
+
 	return f, tea.Batch(cmds...)
 }
 
@@ -86,7 +90,7 @@ func (f feed) View() string {
 	s := strings.Builder{}
 
 	if f.loading {
-		s.WriteString(fmt.Sprintf("%s loading...", f.spinner.View()))
+		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.item.name))
 	} else {
 		s.WriteString(f.list.View())
 	}
