@@ -16,12 +16,13 @@ import (
 )
 
 type feedItem struct {
-	name string
+	title       string
+	description string
 }
 
-func (f feedItem) FilterValue() string { return f.name }
-func (f feedItem) Description() string { return f.name }
-func (f feedItem) Title() string       { return f.name }
+func (f feedItem) FilterValue() string { return f.title }
+func (f feedItem) Description() string { return f.description }
+func (f feedItem) Title() string       { return f.title }
 
 type feed struct {
 	queries *database.Queries
@@ -99,7 +100,8 @@ func (f feed) fetchRssFeed() tea.Msg {
 	items := make([]list.Item, len(rss.Channel.Item))
 	for i, val := range rss.Channel.Item {
 		items[i] = feedItem{
-			name: val.Title,
+			title:       val.Title,
+			description: val.Link,
 		}
 	}
 
