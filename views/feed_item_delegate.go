@@ -1,9 +1,6 @@
 package views
 
 import (
-	"context"
-
-	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -11,7 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
+func feedItemDelegate() list.DefaultDelegate {
 	highlight := styles.HighlightStyle.
 		BorderLeft(true).
 		BorderStyle(lipgloss.NormalBorder()).
@@ -19,7 +16,8 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 		Padding(0, 0, 0, 1)
 
 	d := list.NewDefaultDelegate()
-
+	d.Styles.SelectedTitle = highlight
+	d.Styles.SelectedDesc = highlight
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		selectedItem := m.SelectedItem()
 		if selectedItem == nil {
@@ -36,32 +34,10 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 			switch {
 			case key.Matches(msg, enterBinding):
 				return transitionView(item)
-
-			case key.Matches(msg, removeBinding):
-				index := m.Index()
-				m.RemoveItem(index)
-				if len(m.Items()) == 0 {
-					removeBinding.SetEnabled(false)
-				}
-				return tea.Batch(removeFeed(item, q),
-					m.NewStatusMessage("You deleted "+item.title))
 			}
 		}
 		return nil
 	}
 
-	d.Styles.SelectedTitle = highlight
-	d.Styles.SelectedDesc = highlight
-
 	return d
-}
-
-func removeFeed(item item, q *database.Queries) tea.Cmd {
-	return func() tea.Msg {
-		err := q.DeleteFeed(context.Background(), item.url)
-		if err != nil {
-			return failError{error: err}
-		}
-		return success{}
-	}
 }

@@ -29,7 +29,7 @@ func initialiseFeed(q *database.Queries, i item) feed {
 	s.Style = styles.HighlightStyle
 
 	items := make([]list.Item, 0)
-	l := list.New(items, list.NewDefaultDelegate(), 100, 40)
+	l := list.New(items, feedItemDelegate(), 100, 40)
 	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.title))
 	l.Styles.Title = styles.HighlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
