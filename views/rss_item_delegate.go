@@ -21,13 +21,7 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
-		title := ""
-		item := m.SelectedItem().(rssItem)
-		if i, ok := m.SelectedItem().(rssItem); ok {
-			title = i.name
-		} else {
-			return nil
-		}
+		item := m.SelectedItem().(item)
 
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -42,7 +36,7 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 					removeBinding.SetEnabled(false)
 				}
 				return tea.Batch(removeFeed(item, q),
-					m.NewStatusMessage("You deleted "+title))
+					m.NewStatusMessage("You deleted "+item.title))
 			}
 		}
 		return nil
@@ -54,7 +48,7 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 	return d
 }
 
-func removeFeed(item rssItem, q *database.Queries) tea.Cmd {
+func removeFeed(item item, q *database.Queries) tea.Cmd {
 	return func() tea.Msg {
 		err := q.DeleteFeed(context.Background(), item.url)
 		if err != nil {
@@ -65,10 +59,10 @@ func removeFeed(item rssItem, q *database.Queries) tea.Cmd {
 }
 
 type selectedFeed struct {
-	rssFeed rssItem
+	rssFeed item
 }
 
-func transitionView(i rssItem) tea.Cmd {
+func transitionView(i item) tea.Cmd {
 	return func() tea.Msg {
 		return selectedFeed{rssFeed: i}
 	}

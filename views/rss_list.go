@@ -2,7 +2,6 @@ package views
 
 import (
 	"context"
-	"time"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
@@ -12,16 +11,6 @@ import (
 )
 
 var base = styles.BaseStyle
-
-type rssItem struct {
-	name      string
-	url       string
-	updatedAt time.Time
-}
-
-func (i rssItem) FilterValue() string { return i.name }
-func (i rssItem) Description() string { return i.url }
-func (i rssItem) Title() string       { return i.name }
 
 type rssList struct {
 	queries *database.Queries
@@ -33,7 +22,7 @@ func initialiseRssList(q *database.Queries) rssList {
 
 	items := make([]list.Item, 0)
 
-	feedsList := list.New(items, delegate, 30, 30)
+	feedsList := list.New(items, delegate, 100, 40)
 	feedsList.Title = "RSS FEEDS"
 	feedsList.Styles.Title = styles.HighlightStyle
 	feedsList.AdditionalShortHelpKeys = func() []key.Binding {
@@ -109,10 +98,10 @@ func (l *rssList) getRssFeeds() tea.Msg {
 
 	items := make([]list.Item, len(feeds))
 	for i := range feeds {
-		items[i] = rssItem{
-			name:      feeds[i].Name,
-			url:       feeds[i].Url,
-			updatedAt: feeds[i].UpdatedAt,
+		items[i] = item{
+			title:       feeds[i].Name,
+			url:         feeds[i].Url,
+			description: feeds[i].Url,
 		}
 	}
 

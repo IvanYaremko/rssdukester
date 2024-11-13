@@ -15,31 +15,22 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type feedItem struct {
-	title       string
-	description string
-}
-
-func (f feedItem) FilterValue() string { return f.title }
-func (f feedItem) Description() string { return f.description }
-func (f feedItem) Title() string       { return f.title }
-
 type feed struct {
 	queries *database.Queries
-	item    rssItem
+	item    item
 	spinner spinner.Model
 	loading bool
 	list    list.Model
 }
 
-func initialiseFeed(q *database.Queries, i rssItem) feed {
+func initialiseFeed(q *database.Queries, i item) feed {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
 
 	items := make([]list.Item, 0)
 	l := list.New(items, list.NewDefaultDelegate(), 100, 40)
-	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.name))
+	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.title))
 	l.Styles.Title = styles.HighlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
@@ -99,9 +90,10 @@ func (f feed) fetchRssFeed() tea.Msg {
 
 	items := make([]list.Item, len(rss.Channel.Item))
 	for i, val := range rss.Channel.Item {
-		items[i] = feedItem{
+		items[i] = item{
 			title:       val.Title,
 			description: val.Link,
+			url:         val.Link,
 		}
 	}
 
@@ -144,7 +136,7 @@ func (f feed) View() string {
 	s := strings.Builder{}
 
 	if f.loading {
-		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.item.name))
+		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.item.title))
 	} else {
 		s.WriteString(f.list.View())
 	}
