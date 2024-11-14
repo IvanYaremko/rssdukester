@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/IvanYaremko/rssdukester/reader"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
@@ -120,6 +121,10 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd := f.list.SetItems(msg.items)
 		f.loading = false
 		return f, cmd
+
+	case selectedFeed:
+		reader.GetArticle(msg.selected.url, msg.selected.title)
+		return f, nil
 	}
 
 	newList, cmd := f.list.Update(msg)
