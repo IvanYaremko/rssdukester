@@ -123,8 +123,9 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return f, cmd
 
 	case selectedFeed:
-		reader.GetArticle(msg.selected.url, msg.selected.title)
-		return f, nil
+		content, _ := reader.GetMarkdown(msg.selected.url, msg.selected.title)
+		artile := InitialiseArticle(f.queries, content, f.item)
+		return artile, artile.Init()
 	}
 
 	newList, cmd := f.list.Update(msg)

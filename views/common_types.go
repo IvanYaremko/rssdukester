@@ -7,6 +7,10 @@ import (
 
 type success struct{}
 
+type successContent struct {
+	content string
+}
+
 type successItems struct {
 	items []list.Item
 }
