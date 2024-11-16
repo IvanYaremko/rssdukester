@@ -7,6 +7,7 @@ import (
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/charmbracelet/glamour"
@@ -20,12 +21,15 @@ type article struct {
 	backItem     item
 	spinner      spinner.Model
 	loading      bool
+	viewport     viewport.Model
 }
 
 func InitialiseArticle(q *database.Queries, c, u string, i item) article {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
+
+	vp := viewport.New(100, 50)
 
 	return article{
 		queries:      q,
@@ -35,6 +39,7 @@ func InitialiseArticle(q *database.Queries, c, u string, i item) article {
 		glammed:      "",
 		loading:      true,
 		spinner:      s,
+		viewport:     vp,
 	}
 }
 
@@ -43,7 +48,7 @@ func (a article) Init() tea.Cmd {
 }
 
 func (a article) glamMarkdown() tea.Msg {
-	read, _ := glamour.NewTermRenderer(glamour.WithAutoStyle())
+	read, _ := glamour.NewTermRenderer(glamour.WithAutoStyle(), glamour.WithWordWrap(100))
 
 	output, err := read.Render(a.content)
 	if err != nil {
@@ -69,8 +74,12 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case successContent:
 		a.loading = false
 		a.glammed = msg.content
+		a.viewport.SetContent(msg.content)
 		return a, nil
 	}
+
+	a.viewport, cmd = a.viewport.Update(msg)
+	cmds = append(cmds, cmd)
 
 	a.spinner, cmd = a.spinner.Update(msg)
 	cmds = append(cmds, cmd)
@@ -82,8 +91,5 @@ func (a article) View() string {
 		return fmt.Sprintf("%s loading %s...", a.spinner.View(), a.contentTitle)
 	}
 
-	if a.glammed == "" {
-		return ""
-	}
-	return a.glammed
+	return a.viewport.View()
 }
