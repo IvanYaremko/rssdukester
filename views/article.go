@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
@@ -9,8 +10,23 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/glamour"
+)
+
+var (
+	titleStyle = func() lipgloss.Style {
+		b := lipgloss.RoundedBorder()
+		b.Right = "├"
+		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
+	}()
+
+	infoStyle = func() lipgloss.Style {
+		b := lipgloss.RoundedBorder()
+		b.Left = "┤"
+		return titleStyle.BorderStyle(b)
+	}()
 )
 
 type article struct {
@@ -22,6 +38,7 @@ type article struct {
 	spinner      spinner.Model
 	loading      bool
 	viewport     viewport.Model
+	ready        bool
 }
 
 func InitialiseArticle(q *database.Queries, c, u string, i item) article {
@@ -40,6 +57,7 @@ func InitialiseArticle(q *database.Queries, c, u string, i item) article {
 		loading:      true,
 		spinner:      s,
 		viewport:     vp,
+		ready:        false,
 	}
 }
 
@@ -59,9 +77,38 @@ func (a article) glamMarkdown() tea.Msg {
 }
 
 func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+
 	switch msg := msg.(type) {
+
+	case tea.WindowSizeMsg:
+		headerHeight := lipgloss.Height(a.headerView())
+		footerHeight := lipgloss.Height(a.footerView())
+		verticalMarginHeight := headerHeight + footerHeight
+
+		if !a.ready {
+			// Since this program is using the full size of the viewport we
+			// need to wait until we've received the window dimensions before
+			// we can initialize the viewport. The initial dimensions come in
+			// quickly, though asynchronously, which is why we wait for them
+			// here.
+			a.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
+			a.viewport.YPosition = headerHeight
+			a.ready = true
+
+			// This is only necessary for high performance rendering, which in
+			// most cases you won't need.
+			//
+			// Render the viewport one line below the header.
+			a.viewport.YPosition = headerHeight + 1
+		} else {
+			a.viewport.Width = msg.Width
+			a.viewport.Height = msg.Height - verticalMarginHeight
+		}
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, ctrlcBinding):
@@ -91,5 +138,24 @@ func (a article) View() string {
 		return fmt.Sprintf("%s loading %s...", a.spinner.View(), a.contentTitle)
 	}
 
-	return a.viewport.View()
+	return fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView())
+}
+
+func (a article) headerView() string {
+	title := titleStyle.Render("Article")
+	line := strings.Repeat("─", max(0, a.viewport.Width-lipgloss.Width(title)))
+	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
+}
+
+func (a article) footerView() string {
+	info := infoStyle.Render(fmt.Sprintf("%3.f%%", a.viewport.ScrollPercent()*100))
+	line := strings.Repeat("─", max(0, a.viewport.Width-lipgloss.Width(info)))
+	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
