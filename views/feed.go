@@ -123,9 +123,11 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return f, cmd
 
 	case selectedFeed:
-		content, _ := reader.GetMarkdown(msg.selected.url)
-		artile := InitialiseArticle(f.queries, content, msg.selected.title, f.item)
-		return artile, artile.Init()
+		return f, getMarkdownMsg(msg.selected.url)
+
+	case successContent:
+		article := InitialiseArticle(f.queries, msg.content, f.item)
+		return article, article.Init()
 	}
 
 	newList, cmd := f.list.Update(msg)
@@ -136,6 +138,19 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return f, tea.Batch(cmds...)
+}
+
+func getMarkdownMsg(url string) tea.Cmd {
+	return func() tea.Msg {
+		c, err := reader.GetMarkdown(url)
+		if err != nil {
+			return failError{
+				error: err,
+			}
+		}
+
+		return successContent{content: c}
+	}
 }
 
 func (f feed) View() string {
