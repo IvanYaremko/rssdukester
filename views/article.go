@@ -34,14 +34,15 @@ type article struct {
 	content      string
 	contentTitle string
 	glammed      string
-	backItem     item
+	rssItem      item
+	feedItem     item
 	spinner      spinner.Model
 	loading      bool
 	viewport     viewport.Model
 	ready        bool
 }
 
-func InitialiseArticle(q *database.Queries, c, u string, i item) article {
+func InitialiseArticle(q *database.Queries, c string, rssItem, feedItem item) article {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
@@ -49,15 +50,15 @@ func InitialiseArticle(q *database.Queries, c, u string, i item) article {
 	vp := viewport.New(100, 50)
 
 	return article{
-		queries:      q,
-		content:      c,
-		contentTitle: u,
-		backItem:     i,
-		glammed:      "",
-		loading:      true,
-		spinner:      s,
-		viewport:     vp,
-		ready:        false,
+		queries:  q,
+		content:  c,
+		rssItem:  rssItem,
+		feedItem: feedItem,
+		glammed:  "",
+		loading:  true,
+		spinner:  s,
+		viewport: vp,
+		ready:    false,
 	}
 }
 
@@ -66,13 +67,15 @@ func (a article) Init() tea.Cmd {
 }
 
 func (a article) glamMarkdown() tea.Msg {
-	read, _ := glamour.NewTermRenderer(glamour.WithAutoStyle(), glamour.WithWordWrap(100))
-
+	read, _ := glamour.NewTermRenderer(
+		glamour.WithAutoStyle(),
+		glamour.WithWordWrap(0), // Let viewport handle wrapping
+		glamour.WithEmoji(),     // Handle emoji if present
+	)
 	output, err := read.Render(a.content)
 	if err != nil {
 		return failError{error: err}
 	}
-
 	return successContent{content: output}
 }
 
@@ -114,7 +117,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, ctrlcBinding):
 			return a, tea.Quit
 		case key.Matches(msg, backBinding):
-			feed := initialiseFeed(a.queries, a.backItem)
+			feed := initialiseFeed(a.queries, a.rssItem)
 			return feed, feed.Init()
 		}
 
@@ -135,7 +138,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a article) View() string {
 	if a.loading {
-		return fmt.Sprintf("%s loading %s...", a.spinner.View(), a.contentTitle)
+		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.feedItem.title)
 	}
 
 	return fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView())
