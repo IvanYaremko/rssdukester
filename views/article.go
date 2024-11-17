@@ -31,16 +31,14 @@ var (
 )
 
 type article struct {
-	queries      *database.Queries
-	content      string
-	contentTitle string
-	glammed      string
-	rss          item
-	post         item
-	spinner      spinner.Model
-	loading      bool
-	viewport     viewport.Model
-	ready        bool
+	queries  *database.Queries
+	markdown string
+	rss      item
+	post     item
+	spinner  spinner.Model
+	loading  bool
+	viewport viewport.Model
+	ready    bool
 }
 
 func InitialiseArticle(q *database.Queries, rss, selected item) article {
@@ -54,7 +52,7 @@ func InitialiseArticle(q *database.Queries, rss, selected item) article {
 		queries:  q,
 		rss:      rss,
 		post:     selected,
-		glammed:  "",
+		markdown: "",
 		loading:  true,
 		spinner:  s,
 		viewport: vp,
@@ -63,10 +61,10 @@ func InitialiseArticle(q *database.Queries, rss, selected item) article {
 }
 
 func (a article) Init() tea.Cmd {
-	return tea.Batch(loadContent(a.post.url), a.spinner.Tick)
+	return tea.Batch(loadMarkdown(a.post.url), a.spinner.Tick)
 }
 
-func loadContent(url string) tea.Cmd {
+func loadMarkdown(url string) tea.Cmd {
 	return func() tea.Msg {
 		markdown, err := reader.GetMarkdown(url)
 		if err != nil {
@@ -75,10 +73,17 @@ func loadContent(url string) tea.Cmd {
 			}
 		}
 
-		wrappedContent := lipgloss.NewStyle().Width(width).Height(height).Render(markdown)
-
-		return successContent{content: wrappedContent}
+		return successContent{content: markdown}
 	}
+}
+
+func prettifyMarkdown(markdown string, w, h int) string {
+	wrappedContent := lipgloss.
+		NewStyle().
+		Width(w).
+		Height(h).
+		Render(markdown)
+	return wrappedContent
 }
 
 func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -92,9 +97,12 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.viewport.Height = msg.Height - 20
 		a.viewport.Width = msg.Width - 40
+		a.viewport.SetContent(prettifyMarkdown(a.markdown, msg.Width-41, msg.Height-21))
 
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, quitBinding):
+			return a, tea.Quit
 		case key.Matches(msg, ctrlcBinding):
 			return a, tea.Quit
 		case key.Matches(msg, backBinding):
@@ -104,7 +112,9 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case successContent:
 		a.loading = false
-		a.viewport.SetContent(msg.content)
+		a.markdown = msg.content
+		prettyContent := prettifyMarkdown(msg.content, width, height)
+		a.viewport.SetContent(prettyContent)
 		return a, nil
 	}
 
