@@ -47,10 +47,9 @@ func InitialiseArticle(q *database.Queries, c string, rssItem, feedItem item) ar
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
 
-	vp := viewport.New(60, 30)
-	vp.SetContent(c)
-	//	vp.Style = lipgloss.NewStyle().
-	//		Border(lipgloss.NormalBorder())
+	vp := viewport.New(80, 40)
+	wrappedCOntent := lipgloss.NewStyle().Width(80).Height(40).Render(c)
+	vp.SetContent(wrappedCOntent)
 
 	return article{
 		queries:  q,
@@ -92,9 +91,9 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(a.headerView())
-		footerHeight := lipgloss.Height(a.footerView())
-		verticalMarginHeight := headerHeight + footerHeight
+		//headerHeight := lipgloss.Height(a.headerView())
+		//footerHeight := lipgloss.Height(a.footerView())
+		//verticalMarginHeight := headerHeight + footerHeight
 
 		//if !a.ready {
 		// Since this program is using the full size of the viewport we
@@ -102,10 +101,10 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// we can initialize the viewport. The initial dimensions come in
 		// quickly, though asynchronously, which is why we wait for them
 		// here.
-		a.viewport.Height = msg.Height - verticalMarginHeight
-		a.viewport.Width = msg.Width
+		//[a.viewport.Height = msg.Height - 40
+		//a.viewport.Width = msg.Width - 20
 		//a.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-		a.viewport.YPosition = headerHeight
+		//a.viewport.YPosition = headerHeight
 		//	a.ready = true
 
 		// This is only necessary for high performance rendering, which in
@@ -116,7 +115,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//} else {
 		//a.viewport.Width = msg.Width - 2
 		//a.viewport.Height = msg.Height - verticalMarginHeight
-		a.viewport.SetContent(a.glammed)
+		//a.viewport.SetContent(a.glammed)
 	//}
 
 	case tea.KeyMsg:
@@ -144,10 +143,10 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (a article) View() string {
-	return base.Render(fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView()))
-	if a.loading {
-		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
-	}
+
+	//	if a.loading {
+	//		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
+	//	}
 
 	return base.Render(fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView()))
 }
