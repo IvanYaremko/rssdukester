@@ -7,6 +7,7 @@ import (
 	"github.com/IvanYaremko/rssdukester/reader"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -20,9 +21,8 @@ var (
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Right = "├"
-		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
+		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1).Foreground(styles.Highlight)
 	}()
-
 	infoStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Left = "┤"
@@ -39,6 +39,8 @@ type article struct {
 	loading  bool
 	viewport viewport.Model
 	ready    bool
+	help     help.Model
+	keys     articleKeyMap
 }
 
 func InitialiseArticle(q *database.Queries, rss, selected item) article {
@@ -57,6 +59,15 @@ func InitialiseArticle(q *database.Queries, rss, selected item) article {
 		spinner:  s,
 		viewport: vp,
 		ready:    false,
+		help:     help.New(),
+		keys: articleKeyMap{
+			Up:   upBinding,
+			Down: downBinding,
+			Back: backBinding,
+			Save: saveBinding,
+			Help: helpBinding,
+			Quit: quitBinding,
+		},
 	}
 }
 
@@ -127,12 +138,20 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (a article) View() string {
-
 	if a.loading {
-		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
+		return base.Render(
+			fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title),
+		)
 	}
 
-	return base.Render(fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView()))
+	s := strings.Builder{}
+
+	s.WriteString(a.headerView() + "\n")
+	s.WriteString(a.viewport.View() + "\n")
+	s.WriteString(a.footerView() + "\n\n")
+	s.WriteString(a.help.View(a.keys) + "\n")
+
+	return base.Render(s.String())
 }
 
 func (a article) headerView() string {

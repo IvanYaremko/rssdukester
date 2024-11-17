@@ -61,6 +61,10 @@ var (
 		key.WithKeys("X"),
 		key.WithHelp("X", "remove"),
 	)
+	saveBinding = key.NewBinding(
+		key.WithKeys("S"),
+		key.WithHelp("S", "save"),
+	)
 )
 
 type homeKeyMap struct {
@@ -128,5 +132,32 @@ func (l rssItemKeyMap) FullHelp() [][]key.Binding {
 			l.Choose,
 			l.Remove,
 		},
+	}
+}
+
+type articleKeyMap struct {
+	Up   key.Binding
+	Down key.Binding
+	Back key.Binding
+	Save key.Binding
+	Help key.Binding
+	Quit key.Binding
+}
+
+func (a articleKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		a.Up,
+		a.Down,
+		a.Back,
+		a.Save,
+		a.Quit,
+	}
+}
+
+func (a articleKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{a.Up, a.Down},
+		{a.Back, a.Save},
+		{a.Help, a.Quit},
 	}
 }
