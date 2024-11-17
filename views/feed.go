@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/IvanYaremko/rssdukester/reader"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
@@ -19,7 +18,6 @@ import (
 type feed struct {
 	queries *database.Queries
 	rss     item
-	post    item
 	spinner spinner.Model
 	loading bool
 	list    list.Model
@@ -123,13 +121,10 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		f.loading = false
 		return f, cmd
 
-	case selectedFeed:
-		f.post = msg.selected
-		return f, getMarkdownMsg(msg.selected.url)
-
-	case successContent:
-		article := InitialiseArticle(f.queries, msg.content, f.rss, f.post)
+	case selected:
+		article := InitialiseArticle(f.queries, f.rss, msg.selected)
 		return article, article.Init()
+
 	}
 
 	newList, cmd := f.list.Update(msg)
@@ -140,18 +135,6 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return f, tea.Batch(cmds...)
-}
-
-func getMarkdownMsg(url string) tea.Cmd {
-	return func() tea.Msg {
-		c, err := reader.GetMarkdown(url)
-		if err != nil {
-			return failError{
-				error: err,
-			}
-		}
-		return successContent{content: c}
-	}
 }
 
 func (f feed) View() string {

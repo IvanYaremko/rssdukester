@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/IvanYaremko/rssdukester/reader"
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
@@ -42,20 +43,17 @@ type article struct {
 	ready        bool
 }
 
-func InitialiseArticle(q *database.Queries, c string, rssItem, feedItem item) article {
+func InitialiseArticle(q *database.Queries, rss, selected item) article {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
 
 	vp := viewport.New(80, 40)
-	wrappedCOntent := lipgloss.NewStyle().Width(80).Height(40).Render(c)
-	vp.SetContent(wrappedCOntent)
 
 	return article{
 		queries:  q,
-		content:  c,
-		rss:      rssItem,
-		post:     feedItem,
+		rss:      rss,
+		post:     selected,
 		glammed:  "",
 		loading:  true,
 		spinner:  s,
@@ -65,8 +63,22 @@ func InitialiseArticle(q *database.Queries, c string, rssItem, feedItem item) ar
 }
 
 func (a article) Init() tea.Cmd {
-	return nil
-	return tea.Batch(a.glamMarkdown, a.spinner.Tick)
+	return tea.Batch(loadContent(a.post.url), a.spinner.Tick)
+}
+
+func loadContent(url string) tea.Cmd {
+	return func() tea.Msg {
+		markdown, err := reader.GetMarkdown(url)
+		if err != nil {
+			return failError{
+				error: err,
+			}
+		}
+
+		wrappedContent := lipgloss.NewStyle().Width(80).Height(40).Render(markdown)
+
+		return successContent{content: wrappedContent}
+	}
 }
 
 func (a article) glamMarkdown() tea.Msg {
@@ -91,31 +103,8 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		//headerHeight := lipgloss.Height(a.headerView())
-		//footerHeight := lipgloss.Height(a.footerView())
-		//verticalMarginHeight := headerHeight + footerHeight
-
-		//if !a.ready {
-		// Since this program is using the full size of the viewport we
-		// need to wait until we've received the window dimensions before
-		// we can initialize the viewport. The initial dimensions come in
-		// quickly, though asynchronously, which is why we wait for them
-		// here.
-		//[a.viewport.Height = msg.Height - 40
-		//a.viewport.Width = msg.Width - 20
-		//a.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-		//a.viewport.YPosition = headerHeight
-		//	a.ready = true
-
-		// This is only necessary for high performance rendering, which in
-		// most cases you won't need.
-		//
-		// Render the viewport one line below the header.
-		//	a.viewport.YPosition = headerHeight + 1
-		//} else {
-		//a.viewport.Width = msg.Width - 2
-		//a.viewport.Height = msg.Height - verticalMarginHeight
-		//a.viewport.SetContent(a.glammed)
+		a.viewport.Height = msg.Height - 20
+		a.viewport.Width = msg.Width - 40
 	//}
 
 	case tea.KeyMsg:
@@ -129,7 +118,6 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case successContent:
 		a.loading = false
-		a.glammed = msg.content
 		a.viewport.SetContent(msg.content)
 		return a, nil
 	}
@@ -144,15 +132,15 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a article) View() string {
 
-	//	if a.loading {
-	//		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
-	//	}
+	if a.loading {
+		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
+	}
 
 	return base.Render(fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView()))
 }
 
 func (a article) headerView() string {
-	title := titleStyle.Render("Article")
+	title := titleStyle.Render(a.rss.title)
 	line := strings.Repeat("─", max(0, a.viewport.Width-lipgloss.Width(title)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }

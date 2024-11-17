@@ -31,12 +31,12 @@ func (i item) FilterValue() string { return i.title }
 func (i item) Description() string { return i.description }
 func (i item) Title() string       { return i.title }
 
-type selectedFeed struct {
+type selected struct {
 	selected item
 }
 
 func transitionView(i item) tea.Cmd {
 	return func() tea.Msg {
-		return selectedFeed{selected: i}
+		return selected{selected: i}
 	}
 }

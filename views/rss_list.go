@@ -74,7 +74,7 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd := l.list.SetItems(msg.items)
 		return l, cmd
 
-	case selectedFeed:
+	case selected:
 		feed := initialiseFeed(l.queries, msg.selected)
 		return feed, feed.Init()
 	}
