@@ -17,12 +17,12 @@ import (
 )
 
 type feed struct {
-	queries  *database.Queries
-	rssItem  item
-	feedItem item
-	spinner  spinner.Model
-	loading  bool
-	list     list.Model
+	queries *database.Queries
+	rss     item
+	post    item
+	spinner spinner.Model
+	loading bool
+	list    list.Model
 }
 
 func initialiseFeed(q *database.Queries, i item) feed {
@@ -47,7 +47,7 @@ func initialiseFeed(q *database.Queries, i item) feed {
 
 	return feed{
 		queries: q,
-		rssItem: i,
+		rss:     i,
 		spinner: s,
 		loading: true,
 		list:    l,
@@ -71,7 +71,7 @@ type rssItemResponse struct {
 }
 
 func (f feed) fetchRssFeed() tea.Msg {
-	req, err := http.NewRequestWithContext(context.Background(), "GET", f.rssItem.url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), "GET", f.rss.url, nil)
 	if err != nil {
 		return failError{error: err}
 	}
@@ -124,11 +124,11 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return f, cmd
 
 	case selectedFeed:
-		f.feedItem = msg.selected
+		f.post = msg.selected
 		return f, getMarkdownMsg(msg.selected.url)
 
 	case successContent:
-		article := InitialiseArticle(f.queries, msg.content, f.rssItem, f.feedItem)
+		article := InitialiseArticle(f.queries, msg.content, f.rss, f.post)
 		return article, article.Init()
 	}
 
@@ -158,7 +158,7 @@ func (f feed) View() string {
 	s := strings.Builder{}
 
 	if f.loading {
-		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.rssItem.title))
+		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.rss.title))
 	} else {
 		s.WriteString(f.list.View())
 	}
