@@ -12,11 +12,11 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
-	"github.com/charmbracelet/glamour"
 )
 
 var (
+	width      = 80
+	height     = 40
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Right = "├"
@@ -48,7 +48,7 @@ func InitialiseArticle(q *database.Queries, rss, selected item) article {
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
 
-	vp := viewport.New(80, 40)
+	vp := viewport.New(width, height)
 
 	return article{
 		queries:  q,
@@ -75,23 +75,10 @@ func loadContent(url string) tea.Cmd {
 			}
 		}
 
-		wrappedContent := lipgloss.NewStyle().Width(80).Height(40).Render(markdown)
+		wrappedContent := lipgloss.NewStyle().Width(width).Height(height).Render(markdown)
 
 		return successContent{content: wrappedContent}
 	}
-}
-
-func (a article) glamMarkdown() tea.Msg {
-	read, _ := glamour.NewTermRenderer(
-		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(0), // Let viewport handle wrapping
-		glamour.WithEmoji(),     // Handle emoji if present
-	)
-	output, err := read.Render(a.content)
-	if err != nil {
-		return failError{error: err}
-	}
-	return successContent{content: output}
 }
 
 func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -105,7 +92,6 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.viewport.Height = msg.Height - 20
 		a.viewport.Width = msg.Width - 40
-	//}
 
 	case tea.KeyMsg:
 		switch {
