@@ -47,10 +47,10 @@ func InitialiseArticle(q *database.Queries, c string, rssItem, feedItem item) ar
 	s.Spinner = spinner.Dot
 	s.Style = styles.HighlightStyle
 
-	vp := viewport.New(80, 40)
+	vp := viewport.New(60, 30)
 	vp.SetContent(c)
-	vp.Style = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder())
+	//	vp.Style = lipgloss.NewStyle().
+	//		Border(lipgloss.NormalBorder())
 
 	return article{
 		queries:  q,
@@ -71,7 +71,6 @@ func (a article) Init() tea.Cmd {
 }
 
 func (a article) glamMarkdown() tea.Msg {
-	return successContent{content: a.content}
 	read, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
 		glamour.WithWordWrap(0), // Let viewport handle wrapping
@@ -103,10 +102,10 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// we can initialize the viewport. The initial dimensions come in
 		// quickly, though asynchronously, which is why we wait for them
 		// here.
-		//	a.viewport.Height = msg.Height-verticalMarginHeight
-		//	a.viewport.Width = msg.Width
+		a.viewport.Height = msg.Height - verticalMarginHeight
+		a.viewport.Width = msg.Width
 		//a.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-		//	a.viewport.YPosition = headerHeight
+		a.viewport.YPosition = headerHeight
 		//	a.ready = true
 
 		// This is only necessary for high performance rendering, which in
@@ -115,10 +114,10 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Render the viewport one line below the header.
 		//	a.viewport.YPosition = headerHeight + 1
 		//} else {
-		a.viewport.Width = msg.Width
-		a.viewport.Height = msg.Height - verticalMarginHeight
-		//	a.viewport.SetContent(a.glammed)
-		//}
+		//a.viewport.Width = msg.Width - 2
+		//a.viewport.Height = msg.Height - verticalMarginHeight
+		a.viewport.SetContent(a.glammed)
+	//}
 
 	case tea.KeyMsg:
 		switch {
@@ -145,7 +144,6 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (a article) View() string {
-
 	return base.Render(fmt.Sprintf("%s\n%s\n%s", a.headerView(), a.viewport.View(), a.footerView()))
 	if a.loading {
 		return fmt.Sprintf("%s loading...\n%s", a.spinner.View(), a.post.title)
