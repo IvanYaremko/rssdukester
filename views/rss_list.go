@@ -4,13 +4,10 @@ import (
 	"context"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
-	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
-
-var base = styles.BaseStyle
 
 type rssList struct {
 	queries *database.Queries
@@ -24,7 +21,7 @@ func initialiseRssList(q *database.Queries) rssList {
 
 	feedsList := list.New(items, delegate, 100, 40)
 	feedsList.Title = "RSS FEEDS"
-	feedsList.Styles.Title = styles.HighlightStyle
+	feedsList.Styles.Title = highlightStyle
 	feedsList.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
@@ -52,8 +49,7 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		x, y := base.GetFrameSize()
-		l.list.SetSize(msg.Width-x, msg.Height-y)
+		l.list.SetSize(msg.Width-20, msg.Height-2)
 
 	case tea.KeyMsg:
 		switch {
@@ -87,7 +83,7 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (l rssList) View() string {
-	return base.Render(l.list.View())
+	return baseStyle.Render(l.list.View())
 }
 
 func (l *rssList) getRssFeeds() tea.Msg {

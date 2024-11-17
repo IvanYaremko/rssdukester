@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
-	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,10 +11,10 @@ import (
 )
 
 func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
-	highlight := styles.HighlightStyle.
+	highlight := highlightStyle.
 		BorderLeft(true).
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(styles.Highlight).
+		BorderForeground(highlight).
 		Padding(0, 0, 0, 1)
 
 	d := list.NewDefaultDelegate()

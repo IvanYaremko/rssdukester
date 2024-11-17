@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
-	"github.com/IvanYaremko/rssdukester/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -26,12 +25,12 @@ type feed struct {
 func initialiseFeed(q *database.Queries, i item) feed {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
-	s.Style = styles.HighlightStyle
+	s.Style = highlightStyle
 
 	items := make([]list.Item, 0)
 	l := list.New(items, feedItemDelegate(), 100, 40)
 	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.title))
-	l.Styles.Title = styles.HighlightStyle
+	l.Styles.Title = highlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
@@ -108,6 +107,9 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		f.list.SetSize(msg.Width-20, msg.Height-2)
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, ctrlcBinding):
@@ -146,5 +148,5 @@ func (f feed) View() string {
 		s.WriteString(f.list.View())
 	}
 
-	return base.Render(s.String())
+	return baseStyle.Render(s.String())
 }
