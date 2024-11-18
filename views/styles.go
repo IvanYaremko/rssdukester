@@ -28,4 +28,15 @@ var (
 
 	attentionStyle = lipgloss.NewStyle().
 			Foreground(attention)
+
+	itemNormalTitle = lipgloss.NewStyle().
+			Width(width).
+			Foreground(text)
+
+	itemSelectedTitle = lipgloss.NewStyle().
+				Width(width).
+				BorderLeft(true).
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderForeground(highlight).
+				PaddingLeft(1)
 )
