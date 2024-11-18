@@ -4,24 +4,15 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 func feedItemDelegate() list.DefaultDelegate {
 
-	widthStyle := lipgloss.NewStyle().Width(80).Foreground(text)
-	highlight := highlightStyle.
-		Width(80).
-		BorderLeft(true).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(highlight).
-		Padding(0, 0, 0, 1)
-
 	d := list.NewDefaultDelegate()
-	d.Styles.NormalTitle = widthStyle
-	d.Styles.NormalDesc = widthStyle
-	d.Styles.SelectedTitle = highlight
-	d.Styles.SelectedDesc = highlight
+	d.Styles.NormalTitle = itemNormalTitle
+	d.Styles.NormalDesc = itemNormalDesc
+	d.Styles.SelectedTitle = itemSelectedTitle
+	d.Styles.SelectedDesc = itemSelectedDesc
 
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		selectedItem := m.SelectedItem()

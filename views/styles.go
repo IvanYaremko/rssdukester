@@ -34,6 +34,7 @@ var (
 			Foreground(text)
 
 	itemSelectedTitle = lipgloss.NewStyle().
+				Foreground(highlight).
 				Width(width).
 				BorderLeft(true).
 				BorderStyle(lipgloss.NormalBorder()).
@@ -46,6 +47,7 @@ var (
 
 	itemSelectedDesc = lipgloss.NewStyle().
 				Width(width).
+				Foreground(highlight).
 				BorderLeft(true).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(highlight).
