@@ -7,17 +7,14 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
-	highlight := highlightStyle.
-		BorderLeft(true).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(highlight).
-		Padding(0, 0, 0, 1)
-
 	d := list.NewDefaultDelegate()
+	d.Styles.NormalTitle = itemNormalTitle
+	d.Styles.NormalDesc = itemNormalDesc
+	d.Styles.SelectedTitle = itemSelectedTitle
+	d.Styles.SelectedDesc = itemSelectedDesc
 
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		selectedItem := m.SelectedItem()
@@ -48,9 +45,6 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 		}
 		return nil
 	}
-
-	d.Styles.SelectedTitle = highlight
-	d.Styles.SelectedDesc = highlight
 
 	return d
 }

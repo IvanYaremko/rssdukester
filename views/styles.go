@@ -39,4 +39,15 @@ var (
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(highlight).
 				PaddingLeft(1)
+
+	itemNormalDesc = lipgloss.NewStyle().
+			Width(width).
+			Foreground(text)
+
+	itemSelectedDesc = lipgloss.NewStyle().
+				Width(width).
+				BorderLeft(true).
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderForeground(highlight).
+				PaddingLeft(1)
 )
