@@ -44,7 +44,7 @@ func initialiseAddFeed(q *database.Queries) addFeed {
 			ShiftTab: shiftTabBinding,
 			Enter:    enterBinding,
 			Help:     helpBinding,
-			Back:     backBinding,
+			Back:     escBinding,
 			Ctrlc:    ctrlcBinding,
 		},
 		help:       help.New(),
