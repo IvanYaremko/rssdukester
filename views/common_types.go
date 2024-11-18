@@ -28,8 +28,12 @@ type item struct {
 }
 
 func (i item) FilterValue() string { return i.title }
-func (i item) Description() string { return i.description }
-func (i item) Title() string       { return i.title }
+func (i item) Description() string {
+	return i.description
+}
+func (i item) Title() string {
+	return i.title
+}
 
 type selected struct {
 	selected item

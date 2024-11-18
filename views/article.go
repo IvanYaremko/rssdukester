@@ -87,13 +87,23 @@ func loadMarkdown(url string) tea.Cmd {
 	}
 }
 
-func prettifyMarkdown(markdown string, w, h int) string {
+func prettifyMarkdown(title, markdown string, w, h int) string {
+	wrappedTitle := lipgloss.
+		NewStyle().
+		Italic(true).
+		Width(w).
+		PaddingTop(1).
+		Foreground(highlight).
+		Render(title)
+
 	wrappedContent := lipgloss.
 		NewStyle().
 		Width(w).
 		Height(h).
+		Foreground(text).
 		Render(markdown)
-	return wrappedContent
+
+	return wrappedTitle + "\n\n" + wrappedContent
 }
 
 func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -107,7 +117,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.viewport.Height = msg.Height - 20
 		a.viewport.Width = msg.Width - 40
-		a.viewport.SetContent(prettifyMarkdown(a.markdown, msg.Width-41, msg.Height-21))
+		a.viewport.SetContent(prettifyMarkdown(a.post.title, a.markdown, msg.Width-41, msg.Height-21))
 
 	case tea.KeyMsg:
 		switch {
@@ -123,7 +133,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case successContent:
 		a.loading = false
 		a.markdown = msg.content
-		prettyContent := prettifyMarkdown(msg.content, width, height)
+		prettyContent := prettifyMarkdown(a.post.title, msg.content, width, height)
 		a.viewport.SetContent(prettyContent)
 		return a, nil
 	}

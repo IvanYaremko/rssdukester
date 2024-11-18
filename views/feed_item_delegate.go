@@ -8,15 +8,21 @@ import (
 )
 
 func feedItemDelegate() list.DefaultDelegate {
+
+	widthStyle := lipgloss.NewStyle().Width(80).Foreground(text)
 	highlight := highlightStyle.
+		Width(80).
 		BorderLeft(true).
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(highlight).
 		Padding(0, 0, 0, 1)
 
 	d := list.NewDefaultDelegate()
+	d.Styles.NormalTitle = widthStyle
+	d.Styles.NormalDesc = widthStyle
 	d.Styles.SelectedTitle = highlight
 	d.Styles.SelectedDesc = highlight
+
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		selectedItem := m.SelectedItem()
 		if selectedItem == nil {
