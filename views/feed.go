@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
@@ -65,6 +66,8 @@ type rssItemResponse struct {
 	Link        string `xml:"link"`
 	Description string `xml:"description"`
 	PubDate     string `xml:"pubDate"`
+	Guid        string `xml:"guid"`
+	Atom        string `xml:"atom,link"`
 }
 
 func (f feed) fetchRssFeed() tea.Msg {
@@ -89,10 +92,21 @@ func (f feed) fetchRssFeed() tea.Msg {
 
 	items := make([]list.Item, len(rss.Channel.Item))
 	for i, val := range rss.Channel.Item {
+		url := val.Link
+
+		if url == "" {
+			url = val.Guid
+		}
+		if url == "" {
+			url = val.Atom
+		}
+
+		timestamp, _ := time.Parse(time.RFC1123Z, val.PubDate)
+		date := timestamp.Format("06 Jan Mon 15:04")
 		items[i] = item{
 			title:       val.Title,
-			description: val.Link,
-			url:         val.Link,
+			description: date,
+			url:         url,
 		}
 	}
 
