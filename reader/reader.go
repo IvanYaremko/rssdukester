@@ -4,9 +4,18 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/IvanYaremko/rssdukester/markdown"
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	"github.com/go-shiori/go-readability"
 )
+
+func convertArticle(article string) (string, error) {
+	markdown, err := htmltomarkdown.ConvertString(article)
+	if err != nil {
+		return "", err
+	}
+
+	return markdown, nil
+}
 
 func GetMarkdown(articleUrl string) (string, error) {
 	req, err := http.NewRequest("GET", articleUrl, nil)
@@ -34,7 +43,7 @@ func GetMarkdown(articleUrl string) (string, error) {
 		return "", nil
 	}
 
-	markdown, err := markdown.ConvertArticle(article.Content)
+	markdown, err := convertArticle(article.Content)
 	if err != nil {
 		return "", err
 	}
