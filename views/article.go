@@ -88,6 +88,8 @@ func loadMarkdown(url string) tea.Cmd {
 }
 
 func prettifyMarkdown(title, markdown string, w, h int) string {
+	s := strings.Builder{}
+
 	wrappedTitle := lipgloss.
 		NewStyle().
 		Italic(true).
@@ -95,6 +97,7 @@ func prettifyMarkdown(title, markdown string, w, h int) string {
 		PaddingTop(1).
 		Foreground(highlight).
 		Render(title)
+	s.WriteString(wrappedTitle + "\n\n")
 
 	wrappedContent := lipgloss.
 		NewStyle().
@@ -103,7 +106,8 @@ func prettifyMarkdown(title, markdown string, w, h int) string {
 		Foreground(text).
 		Render(markdown)
 
-	return wrappedTitle + "\n\n" + wrappedContent
+	s.WriteString(wrappedContent)
+	return s.String()
 }
 
 func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

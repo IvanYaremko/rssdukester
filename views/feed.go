@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
@@ -101,11 +100,11 @@ func (f feed) fetchRssFeed() tea.Msg {
 			url = val.Atom
 		}
 
-		timestamp, _ := time.Parse(time.RFC1123Z, val.PubDate)
-		date := timestamp.Format("06 Jan Mon 15:04")
+		//timestamp, _ := time.Parse(time.RFC1123Z, val.PubDate)
+		//date := timestamp.Format("06 Jan Mon 15:04")
 		items[i] = item{
 			title:       val.Title,
-			description: date,
+			description: url,
 			url:         url,
 		}
 	}
