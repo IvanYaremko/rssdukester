@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type feed struct {
@@ -100,16 +102,45 @@ func (f feed) fetchRssFeed() tea.Msg {
 			url = val.Atom
 		}
 
+		hyperLink := lipgloss.NewStyle().Foreground(special).Render(
+			fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", url, "Article link →"),
+		)
+
+		t, _ := parseRSSDate(val.PubDate)
+		pubDate := lipgloss.NewStyle().Foreground(attention).Render(t.Format("2006/01/02 15:04"))
+
 		//timestamp, _ := time.Parse(time.RFC1123Z, val.PubDate)
 		//date := timestamp.Format("06 Jan Mon 15:04")
 		items[i] = item{
 			title:       val.Title,
-			description: url,
+			description: fmt.Sprintf("%s - %s", hyperLink, pubDate),
 			url:         url,
 		}
 	}
 
 	return successItems{items: items}
+}
+
+func parseRSSDate(dateStr string) (time.Time, error) {
+	formats := []string{
+		time.RFC1123Z,
+		time.RFC1123,
+		time.RFC3339,
+		"2006-01-02T15:04:05-0700",
+		"2006-01-02T15:04:05Z",
+		"Mon, 02 Jan 2006 15:04:05 MST",
+		"Mon, 02 Jan 2006 15:04:05 -0700",
+	}
+
+	for _, format := range formats {
+		t, err := time.Parse(format, dateStr)
+		if err == nil {
+			return t, nil
+		}
+	}
+
+	// If none of the formats worked, return error
+	return time.Time{}, fmt.Errorf("unable to parse date: %s", dateStr)
 }
 
 func (f feed) Init() tea.Cmd {

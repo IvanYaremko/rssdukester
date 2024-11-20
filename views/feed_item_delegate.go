@@ -7,7 +7,6 @@ import (
 )
 
 func feedItemDelegate() list.DefaultDelegate {
-
 	d := list.NewDefaultDelegate()
 	d.Styles.NormalTitle = itemNormalTitle
 	d.Styles.NormalDesc = itemNormalDesc
