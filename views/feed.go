@@ -109,8 +109,6 @@ func (f feed) fetchRssFeed() tea.Msg {
 		t, _ := parseRSSDate(val.PubDate)
 		pubDate := lipgloss.NewStyle().Foreground(attention).Render(t.Format("2006/01/02 15:04"))
 
-		//timestamp, _ := time.Parse(time.RFC1123Z, val.PubDate)
-		//date := timestamp.Format("06 Jan Mon 15:04")
 		items[i] = item{
 			title:       val.Title,
 			description: fmt.Sprintf("%s - %s", hyperLink, pubDate),
