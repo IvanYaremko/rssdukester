@@ -19,7 +19,7 @@ func initialiseRssList(q *database.Queries) rssList {
 
 	items := make([]list.Item, 0)
 
-	feedsList := list.New(items, delegate, 100, 40)
+	feedsList := list.New(items, delegate, width, height)
 	feedsList.Title = "RSS FEEDS"
 	feedsList.Styles.Title = highlightStyle
 	feedsList.AdditionalShortHelpKeys = func() []key.Binding {
@@ -96,8 +96,8 @@ func (l *rssList) getRssFeeds() tea.Msg {
 	for i := range feeds {
 		items[i] = item{
 			title:       feeds[i].Name,
+			description: specialStyle.Render(feeds[i].Url),
 			url:         feeds[i].Url,
-			description: feeds[i].Url,
 		}
 	}
 

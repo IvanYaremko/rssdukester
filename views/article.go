@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	width      = 80
-	height     = 40
+	width      = 100
+	height     = 25
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Right = "├"
