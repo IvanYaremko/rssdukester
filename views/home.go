@@ -9,10 +9,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var homeNav = []string{
-	"View",
-	"Add",
-}
+var (
+	homeNav = []string{
+		"View",
+		"Add",
+	}
+	width  = 100
+	height = 25
+)
 
 type Home struct {
 	queries *database.Queries
