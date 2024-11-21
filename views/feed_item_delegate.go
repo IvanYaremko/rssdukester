@@ -35,7 +35,7 @@ func feedItemDelegate(q *database.Queries, rss item) list.DefaultDelegate {
 				return transitionView(item)
 
 			case key.Matches(msg, saveBinding):
-				return tea.Batch(savePostItem(q, item, rss), m.NewStatusMessage("Saved "+item.Title()))
+				return savePostItem(q, item, rss)
 			}
 		}
 		return nil

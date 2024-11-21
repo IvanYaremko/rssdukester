@@ -36,11 +36,13 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
+			saveBinding,
 		}
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			backBinding,
+			saveBinding,
 		}
 	}
 
@@ -171,6 +173,10 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case success:
 		selected := f.list.SelectedItem().(item)
 		cmd := f.list.NewStatusMessage("Saved " + selected.title)
+		return f, cmd
+
+	case failError:
+		cmd := f.list.NewStatusMessage("Already saved!")
 		return f, cmd
 	}
 
