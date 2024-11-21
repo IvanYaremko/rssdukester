@@ -15,7 +15,7 @@ var (
 		"Add",
 	}
 	width  = 100
-	height = 25
+	height = 40
 )
 
 type Home struct {
