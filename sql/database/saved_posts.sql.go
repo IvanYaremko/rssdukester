@@ -45,7 +45,6 @@ func (q *Queries) GetSavedPosts(ctx context.Context) ([]SavedPost, error) {
 
 const savePost = `-- name: SavePost :exec
 INSERT INTO saved_posts (
-id,
 title,
 url,
 feed,
@@ -54,13 +53,11 @@ created_at
 ?,
 ?,
 ?,
-?,
 ?
 )
 `
 
 type SavePostParams struct {
-	ID        int64
 	Title     string
 	Url       string
 	Feed      string
@@ -69,7 +66,6 @@ type SavePostParams struct {
 
 func (q *Queries) SavePost(ctx context.Context, arg SavePostParams) error {
 	_, err := q.db.ExecContext(ctx, savePost,
-		arg.ID,
 		arg.Title,
 		arg.Url,
 		arg.Feed,

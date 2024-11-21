@@ -1,12 +1,16 @@
 package views
 
 import (
+	"context"
+	"time"
+
+	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func feedItemDelegate() list.DefaultDelegate {
+func feedItemDelegate(q *database.Queries, rss item) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 	d.Styles.NormalTitle = itemNormalTitle
 	d.Styles.NormalDesc = itemNormalDesc
@@ -29,10 +33,29 @@ func feedItemDelegate() list.DefaultDelegate {
 			switch {
 			case key.Matches(msg, enterBinding):
 				return transitionView(item)
+
+			case key.Matches(msg, saveBinding):
+				return tea.Batch(savePostItem(q, item, rss), m.NewStatusMessage("Saved "+item.Title()))
 			}
 		}
 		return nil
 	}
 
 	return d
+}
+
+func savePostItem(q *database.Queries, selected, rss item) tea.Cmd {
+	return func() tea.Msg {
+		params := database.SavePostParams{
+			Url:       selected.url,
+			Title:     selected.title,
+			Feed:      rss.title,
+			CreatedAt: time.Now(),
+		}
+		err := q.SavePost(context.Background(), params)
+		if err != nil {
+			return failError{error: err}
+		}
+		return success{}
+	}
 }

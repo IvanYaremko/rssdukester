@@ -1,12 +1,10 @@
 -- name: SavePost :exec
 INSERT INTO saved_posts (
-id,
 title,
 url,
 feed,
 created_at
 ) VALUES (
-?,
 ?,
 ?,
 ?,

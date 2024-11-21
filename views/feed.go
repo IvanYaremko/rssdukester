@@ -24,14 +24,14 @@ type feed struct {
 	list    list.Model
 }
 
-func initialiseFeed(q *database.Queries, i item) feed {
+func initialiseFeed(q *database.Queries, rss item) feed {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = highlightStyle
 
 	items := make([]list.Item, 0)
-	l := list.New(items, feedItemDelegate(), width, height)
-	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(i.title))
+	l := list.New(items, feedItemDelegate(q, rss), width, height)
+	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(rss.title))
 	l.Styles.Title = highlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
@@ -46,7 +46,7 @@ func initialiseFeed(q *database.Queries, i item) feed {
 
 	return feed{
 		queries: q,
-		rss:     i,
+		rss:     rss,
 		spinner: s,
 		loading: true,
 		list:    l,
@@ -137,7 +137,6 @@ func parseRSSDate(dateStr string) (time.Time, error) {
 		}
 	}
 
-	// If none of the formats worked, return error
 	return time.Time{}, fmt.Errorf("unable to parse date: %s", dateStr)
 }
 
@@ -169,6 +168,10 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		article := InitialiseArticle(f.queries, f.rss, msg.selected)
 		return article, article.Init()
 
+	case success:
+		selected := f.list.SelectedItem().(item)
+		cmd := f.list.NewStatusMessage("Saved " + selected.title)
+		return f, cmd
 	}
 
 	newList, cmd := f.list.Update(msg)
