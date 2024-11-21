@@ -11,8 +11,11 @@ import (
 
 var (
 	homeNav = []string{
-		"View",
-		"Add",
+		"feeds",
+		"add",
+		"saved",
+		"search",
+		"recommended",
 	}
 	width  = 100
 	height = 40
@@ -103,7 +106,7 @@ func (h Home) View() string {
 	s.WriteString("\n\n\n")
 	for i := 0; i < len(homeNav); i++ {
 		if h.cursor == i {
-			s.WriteString(highlightStyle.Render("[•] ", homeNav[i]))
+			s.WriteString(highlightStyle.Render("[•] ", strings.ToUpper(homeNav[i])))
 		} else {
 			s.WriteString("[ ] " + homeNav[i])
 		}
