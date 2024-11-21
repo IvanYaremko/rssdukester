@@ -8,7 +8,7 @@ var (
 	highlight = lipgloss.AdaptiveColor{Light: "#7D56F4", Dark: "#9D86E9"} // Purple
 	special   = lipgloss.AdaptiveColor{Light: "#2563EB", Dark: "#61AFEF"} // Blue
 	attention = lipgloss.AdaptiveColor{Light: "#059669", Dark: "#98C379"} // Green
-	warning   = lipgloss.AdaptiveColor{Light: "#DC2626", Dark: "#EF4444"} // Red
+	warning   = lipgloss.AdaptiveColor{Light: "#E11D48", Dark: "#F87171"} // Red
 
 	baseStyle = lipgloss.NewStyle().
 			Foreground(text).

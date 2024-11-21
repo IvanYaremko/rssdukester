@@ -45,6 +45,7 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 			saveBinding,
 		}
 	}
+	l.StatusMessageLifetime = 5 * time.Second
 
 	return feed{
 		queries: q,
@@ -172,11 +173,17 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case success:
 		selected := f.list.SelectedItem().(item)
-		cmd := f.list.NewStatusMessage("Saved " + selected.title)
+		message := fmt.Sprintf("%s %s",
+			attentionStyle.Bold(true).Render("SAVED"),
+			specialStyle.Italic(true).Render(selected.title),
+		)
+		cmd := f.list.NewStatusMessage(message)
 		return f, cmd
 
 	case failError:
-		cmd := f.list.NewStatusMessage("Already saved!")
+		cmd := f.list.NewStatusMessage(
+			errorStyle.Render("already saved!"),
+		)
 		return f, cmd
 	}
 
