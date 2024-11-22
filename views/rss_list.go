@@ -2,6 +2,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
@@ -94,9 +95,10 @@ func (l *rssList) getRssFeeds() tea.Msg {
 
 	items := make([]list.Item, len(feeds))
 	for i := range feeds {
+		hyperlink := fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", feeds[i].Url, feeds[i].Url)
 		items[i] = item{
 			title:       feeds[i].Name,
-			description: specialStyle.Render(feeds[i].Url),
+			description: specialStyle.Render(hyperlink),
 			url:         feeds[i].Url,
 		}
 	}

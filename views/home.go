@@ -37,7 +37,6 @@ func InitHomeModel(q *database.Queries) Home {
 			Tab:      tabBinding,
 			ShiftTab: shiftTabBinding,
 			Enter:    enterBinding,
-			Add:      addViewBiding,
 			Help:     helpBinding,
 			Quit:     quitBinding,
 			Ctrlc:    ctrlcBinding,
@@ -77,8 +76,6 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			case key.Matches(msg, h.keys.Quit):
 				return h, tea.Quit
-			case key.Matches(msg, h.keys.Help):
-				h.help.ShowAll = !h.help.ShowAll
 			case key.Matches(msg, h.keys.Enter):
 				switch h.cursor {
 				case 0:
@@ -95,7 +92,6 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-
 	return h, tea.Batch(cmds...)
 }
 

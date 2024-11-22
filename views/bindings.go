@@ -73,23 +73,17 @@ type homeKeyMap struct {
 	Tab      key.Binding
 	ShiftTab key.Binding
 	Enter    key.Binding
-	Add      key.Binding
-	List     key.Binding
 	Help     key.Binding
 	Quit     key.Binding
 	Ctrlc    key.Binding
 }
 
 func (k homeKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Up, k.Down, k.Enter, k.Quit, k.Help}
+	return []key.Binding{k.Up, k.Down, k.Enter, k.Quit}
 }
 
 func (k homeKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Up, k.Down, k.Enter, k.Add},
-		{k.List, k.Help, k.Quit},
-		{k.Add},
-	}
+	return [][]key.Binding{}
 }
 
 type addKeyMap struct {
