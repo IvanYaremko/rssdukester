@@ -46,7 +46,10 @@ func (l rssList) Init() tea.Cmd {
 }
 
 func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
+	var (
+		cmds []tea.Cmd
+		cmd  tea.Cmd
+	)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -68,17 +71,25 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case successItems:
-		cmd := l.list.SetItems(msg.items)
+		cmd = l.list.SetItems(msg.items)
 		return l, cmd
 
 	case selected:
 		feed := initialiseFeed(l.queries, msg.selected)
 		return feed, feed.Init()
+
+	case success:
+		selected := l.list.SelectedItem().(item)
+		message := fmt.Sprintf("%s %s",
+			errorStyle.Bold(true).Render("DELETED"),
+			specialStyle.Italic(true).Render(selected.title),
+		)
+		cmd = l.list.NewStatusMessage(message)
+		return l, cmd
 	}
 
-	newList, cmd := l.list.Update(msg)
+	l.list, cmd = l.list.Update(msg)
 	cmds = append(cmds, cmd)
-	l.list = newList
 
 	return l, tea.Batch(cmds...)
 }
@@ -100,6 +111,7 @@ func (l *rssList) getRssFeeds() tea.Msg {
 			title:       feeds[i].Name,
 			description: specialStyle.Render(hyperlink),
 			url:         feeds[i].Url,
+			feed:        feeds[i].Name,
 		}
 	}
 
