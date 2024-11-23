@@ -3,6 +3,7 @@ package views
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
@@ -17,6 +18,7 @@ type saved struct {
 	spinner spinner.Model
 	loading bool
 	list    list.Model
+	err     error
 }
 
 func initialiseSaved(q *database.Queries) saved {
@@ -44,11 +46,12 @@ func initialiseSaved(q *database.Queries) saved {
 		spinner: s,
 		list:    l,
 		loading: true,
+		err:     nil,
 	}
 }
 
 func (s saved) Init() tea.Cmd {
-	return nil
+	return tea.Batch(s.spinner.Tick, s.getSavedPosts)
 }
 
 func (s *saved) getSavedPosts() tea.Msg {
@@ -76,13 +79,66 @@ func (s *saved) getSavedPosts() tea.Msg {
 			url:         post.Url,
 		})
 	}
-	return items
+	return successItems{
+		items: items,
+	}
 }
 
 func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return s, nil
+	var (
+		cmds []tea.Cmd
+		cmd  tea.Cmd
+	)
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		s.list.SetSize(msg.Width-20, msg.Height-2)
+
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, ctrlcBinding):
+			return s, tea.Quit
+		case key.Matches(msg, quitBinding):
+			return s, tea.Quit
+		case key.Matches(msg, backBinding):
+			home := InitHomeModel(s.queries)
+			return home, home.Init()
+		}
+	case successItems:
+		cmd = s.list.SetItems(msg.items)
+		s.loading = false
+		return s, cmd
+
+	case failError:
+		s.err = msg.error
+		s.loading = false
+		return s, nil
+	}
+
+	s.list, cmd = s.list.Update(msg)
+	cmds = append(cmds, cmd)
+
+	s.spinner, cmd = s.spinner.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return s, tea.Batch(cmds...)
 }
 
 func (s saved) View() string {
-	return ""
+	sb := strings.Builder{}
+
+	if s.err != nil {
+		return fmt.Sprintf("%s\n%s",
+			errorStyle.Render("something has gone wrong!"),
+			errorStyle.Render(s.err.Error()),
+		)
+	}
+
+	if s.loading {
+		sb.WriteString(fmt.Sprintf("%s loading...", s.spinner.View()))
+	} else {
+		sb.WriteString(s.list.View())
+	}
+
+	return baseStyle.Render(sb.String())
 }

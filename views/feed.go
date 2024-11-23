@@ -23,6 +23,7 @@ type feed struct {
 	spinner spinner.Model
 	loading bool
 	list    list.Model
+	err     error
 }
 
 func initialiseFeed(q *database.Queries, rss item) feed {
@@ -54,6 +55,7 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 		spinner: s,
 		loading: true,
 		list:    l,
+		err:     nil,
 	}
 }
 
@@ -149,7 +151,10 @@ func (f feed) Init() tea.Cmd {
 }
 
 func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
+	var (
+		cmds []tea.Cmd
+		cmd  tea.Cmd
+	)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -159,12 +164,14 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, ctrlcBinding):
 			return f, tea.Quit
+		case key.Matches(msg, quitBinding):
+			return f, tea.Quit
 		case key.Matches(msg, backBinding):
 			rssList := initialiseRssList(f.queries)
 			return rssList, rssList.Init()
 		}
 	case successItems:
-		cmd := f.list.SetItems(msg.items)
+		cmd = f.list.SetItems(msg.items)
 		f.loading = false
 		return f, cmd
 
@@ -178,19 +185,23 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			attentionStyle.Bold(true).Render("SAVED"),
 			specialStyle.Italic(true).Render(selected.title),
 		)
-		cmd := f.list.NewStatusMessage(message)
+		cmd = f.list.NewStatusMessage(message)
 		return f, cmd
 
-	case failError:
-		cmd := f.list.NewStatusMessage(
+	case fail:
+		cmd = f.list.NewStatusMessage(
 			errorStyle.Render("already saved!"),
 		)
 		return f, cmd
+
+	case failError:
+		f.err = msg.error
+		f.loading = false
+		return f, nil
 	}
 
-	newList, cmd := f.list.Update(msg)
+	f.list, cmd = f.list.Update(msg)
 	cmds = append(cmds, cmd)
-	f.list = newList
 
 	f.spinner, cmd = f.spinner.Update(msg)
 	cmds = append(cmds, cmd)
@@ -200,6 +211,12 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (f feed) View() string {
 	s := strings.Builder{}
+	if f.err != nil {
+		return fmt.Sprintf("%s\n%s",
+			errorStyle.Render("something has gone wrong!"),
+			errorStyle.Render(f.err.Error()),
+		)
+	}
 
 	if f.loading {
 		s.WriteString(fmt.Sprintf("%s loading %s...", f.spinner.View(), f.rss.title))

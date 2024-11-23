@@ -54,7 +54,7 @@ func savePostItem(q *database.Queries, selected, rss item) tea.Cmd {
 		}
 		err := q.SavePost(context.Background(), params)
 		if err != nil {
-			return failError{error: err}
+			return fail{}
 		}
 		return success{}
 	}
