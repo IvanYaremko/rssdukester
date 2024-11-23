@@ -13,8 +13,9 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
+
+var formateDate = "2006/01/02 15:04"
 
 type feed struct {
 	queries *database.Queries
@@ -105,12 +106,12 @@ func (f feed) fetchRssFeed() tea.Msg {
 			url = val.Atom
 		}
 
-		hyperLink := lipgloss.NewStyle().Foreground(special).Render(
+		hyperLink := specialStyle.Render(
 			fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", url, "Article link →"),
 		)
 
-		t, _ := parseRSSDate(val.PubDate)
-		pubDate := lipgloss.NewStyle().Foreground(attention).Italic(true).Render(t.Format("2006/01/02 15:04"))
+		t, _ := parseDateTime(val.PubDate)
+		pubDate := attentionStyle.Italic(true).Render(t.Format(formateDate))
 
 		items[i] = item{
 			title:       val.Title,
@@ -122,7 +123,7 @@ func (f feed) fetchRssFeed() tea.Msg {
 	return successItems{items: items}
 }
 
-func parseRSSDate(dateStr string) (time.Time, error) {
+func parseDateTime(dateStr string) (time.Time, error) {
 	formats := []string{
 		time.RFC1123Z,
 		time.RFC1123,
