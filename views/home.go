@@ -86,8 +86,8 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					addFeed := initialiseAddFeed(h.queries)
 					return addFeed, addFeed.Init()
 				case 2:
-					//
-					return h, nil
+					saved := initialiseSaved(h.queries)
+					return saved, saved.Init()
 				}
 			}
 		}
