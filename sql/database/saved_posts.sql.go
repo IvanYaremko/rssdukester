@@ -10,6 +10,32 @@ import (
 	"time"
 )
 
+const deleteSavePost = `-- name: DeleteSavePost :exec
+DELETE FROM saved_posts WHERE url = ?
+`
+
+func (q *Queries) DeleteSavePost(ctx context.Context, url string) error {
+	_, err := q.db.ExecContext(ctx, deleteSavePost, url)
+	return err
+}
+
+const getSavedPost = `-- name: GetSavedPost :one
+SELECT id, title, url, feed, created_at FROM saved_posts WHERE url = ?
+`
+
+func (q *Queries) GetSavedPost(ctx context.Context, url string) (SavedPost, error) {
+	row := q.db.QueryRowContext(ctx, getSavedPost, url)
+	var i SavedPost
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Url,
+		&i.Feed,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getSavedPosts = `-- name: GetSavedPosts :many
 SELECT id, title, url, feed, created_at FROM saved_posts ORDER BY created_at DESC
 `
