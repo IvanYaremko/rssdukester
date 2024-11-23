@@ -25,12 +25,14 @@ type item struct {
 	title       string
 	description string
 	url         string
+	feed        string
 }
 
 func (i item) FilterValue() string { return i.title }
 func (i item) Description() string {
 	return i.description
 }
+
 func (i item) Title() string {
 	return i.title
 }
