@@ -39,8 +39,7 @@ func rssItemDelegate(q *database.Queries) list.DefaultDelegate {
 				if len(m.Items()) == 0 {
 					removeBinding.SetEnabled(false)
 				}
-				return tea.Batch(removeFeed(item, q),
-					m.NewStatusMessage("You deleted "+item.title))
+				return removeFeed(item, q)
 			}
 		}
 		return nil
