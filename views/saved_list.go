@@ -27,7 +27,7 @@ func initialiseSaved(q *database.Queries) saved {
 	s.Style = highlightStyle
 
 	items := make([]list.Item, 0)
-	l := list.New(items, list.NewDefaultDelegate(), width, height)
+	l := list.New(items, savedItemDelegate(q), width, height)
 	l.Title = "SAVED POSTS"
 	l.Styles.Title = highlightStyle
 
@@ -39,7 +39,7 @@ func initialiseSaved(q *database.Queries) saved {
 		}
 	}
 
-	l.StatusMessageLifetime = 5 * time.Second
+	l.StatusMessageLifetime = 3 * time.Second
 
 	return saved{
 		queries: q,
@@ -60,9 +60,9 @@ func (s *saved) getSavedPosts() tea.Msg {
 		return failError{error: err}
 	}
 
-	items := make([]list.Item, len(saved))
+	items := make([]list.Item, 0, len(saved))
 	for _, post := range saved {
-		hyperlink := fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", "Article link →", post.Url)
+		hyperlink := fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", post.Url, "Article link →")
 
 		t, _ := parseDateTime(post.CreatedAt.String())
 		savedDate := subtleStyle.Italic(true).Render(t.Format(formateDate))
@@ -77,6 +77,7 @@ func (s *saved) getSavedPosts() tea.Msg {
 			title:       post.Title,
 			description: desc,
 			url:         post.Url,
+			feed:        post.Feed,
 		})
 	}
 	return successItems{
@@ -113,6 +114,19 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		s.err = msg.error
 		s.loading = false
 		return s, nil
+
+	case success:
+		selected := s.list.SelectedItem().(item)
+		message := fmt.Sprintf("%s %s",
+			errorStyle.Bold(true).Render("DELETED"),
+			specialStyle.Italic(true).Render(selected.title),
+		)
+		cmd = s.list.NewStatusMessage(message)
+		return s, cmd
+
+	case selected:
+		article := InitialiseArticle(s.queries, item{title: msg.selected.feed}, msg.selected, true)
+		return article, article.Init()
 	}
 
 	s.list, cmd = s.list.Update(msg)
