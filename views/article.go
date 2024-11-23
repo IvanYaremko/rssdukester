@@ -1,6 +1,7 @@
 package views
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -28,51 +29,60 @@ var (
 )
 
 type article struct {
-	queries  *database.Queries
-	markdown string
-	rss      item
-	post     item
-	spinner  spinner.Model
-	loading  bool
-	viewport viewport.Model
-	ready    bool
-	help     help.Model
-	keys     articleKeyMap
+	queries    *database.Queries
+	markdown   string
+	rss        item
+	post       item
+	spinner    spinner.Model
+	loading    bool
+	viewport   viewport.Model
+	ready      bool
+	help       help.Model
+	keys       articleKeyMap
+	navToSaved bool
+	saved      bool
 }
 
-func InitialiseArticle(q *database.Queries, rss, selected item) article {
+func InitialiseArticle(q *database.Queries, rss, selected item, fromSaved bool) article {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = highlightStyle
 
 	vp := viewport.New(width, height)
 
+	k := articleKeyMap{
+		Up:   upBinding,
+		Down: downBinding,
+		Back: backBinding,
+		Help: helpBinding,
+		Quit: quitBinding,
+	}
+
+	if !fromSaved {
+		k.Save = saveBinding
+	}
+
 	return article{
-		queries:  q,
-		rss:      rss,
-		post:     selected,
-		markdown: "",
-		loading:  true,
-		spinner:  s,
-		viewport: vp,
-		ready:    false,
-		help:     help.New(),
-		keys: articleKeyMap{
-			Up:   upBinding,
-			Down: downBinding,
-			Back: backBinding,
-			Save: saveBinding,
-			Help: helpBinding,
-			Quit: quitBinding,
-		},
+		queries:    q,
+		rss:        rss,
+		post:       selected,
+		markdown:   "",
+		loading:    true,
+		spinner:    s,
+		viewport:   vp,
+		ready:      false,
+		navToSaved: fromSaved,
+		help:       help.New(),
+		keys:       k,
+		saved:      false,
 	}
 }
 
 func (a article) Init() tea.Cmd {
-	return tea.Batch(loadMarkdown(a.post.url), a.spinner.Tick)
+	return tea.Batch(a.loadMarkdown(a.post.url), a.checkIfSaved(a.post.url), a.spinner.Tick)
 }
 
-func loadMarkdown(url string) tea.Cmd {
+func (a article) loadMarkdown(url string) tea.Cmd {
 	return func() tea.Msg {
 		markdown, err := reader.GetMarkdown(url)
 		if err != nil {
@@ -82,6 +92,16 @@ func loadMarkdown(url string) tea.Cmd {
 		}
 
 		return successContent{content: markdown}
+	}
+}
+
+func (a article) checkIfSaved(url string) tea.Cmd {
+	return func() tea.Msg {
+		_, err := a.queries.GetSavedPost(context.Background(), url)
+		if err == nil {
+			return success{}
+		}
+		return item{}
 	}
 }
 
@@ -128,8 +148,17 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, ctrlcBinding):
 			return a, tea.Quit
 		case key.Matches(msg, backBinding):
+			if a.navToSaved {
+				saved := initialiseSaved(a.queries)
+				return saved, saved.Init()
+			}
 			feed := initialiseFeed(a.queries, a.rss)
 			return feed, feed.Init()
+		case key.Matches(msg, saveBinding):
+			if a.navToSaved {
+				return a, nil
+			}
+			return a, savePostItem(a.queries, a.post, a.rss.title)
 		}
 
 	case successContent:
@@ -137,6 +166,17 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.markdown = msg.content
 		prettyContent := prettifyMarkdown(a.post.title, msg.content, width, height)
 		a.viewport.SetContent(prettyContent)
+		return a, nil
+
+	case success:
+		a.saved = true
+		a.keys = articleKeyMap{
+			Up:   upBinding,
+			Down: downBinding,
+			Back: backBinding,
+			Help: helpBinding,
+			Quit: quitBinding,
+		}
 		return a, nil
 	}
 
@@ -166,9 +206,21 @@ func (a article) View() string {
 }
 
 func (a article) headerView() string {
-	title := titleStyle.Render(a.rss.title)
-	line := strings.Repeat("─", max(0, a.viewport.Width-lipgloss.Width(title)))
-	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
+	sb := strings.Builder{}
+	if a.saved {
+		sb.WriteString(
+			titleStyle.Render(
+				fmt.Sprintf("%s %s",
+					attentionStyle.Bold(true).Render("SAVED"),
+					highlightStyle.Render(a.rss.title),
+				),
+			),
+		)
+	} else {
+		sb.WriteString(titleStyle.Render(a.rss.title))
+	}
+	line := strings.Repeat("─", max(0, a.viewport.Width-lipgloss.Width(sb.String())))
+	return lipgloss.JoinHorizontal(lipgloss.Center, sb.String(), line)
 }
 
 func (a article) footerView() string {
