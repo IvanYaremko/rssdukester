@@ -47,7 +47,7 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 			saveBinding,
 		}
 	}
-	l.StatusMessageLifetime = 5 * time.Second
+	l.StatusMessageLifetime = 3 * time.Second
 
 	return feed{
 		queries: q,
@@ -176,7 +176,7 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return f, cmd
 
 	case selected:
-		article := InitialiseArticle(f.queries, f.rss, msg.selected)
+		article := InitialiseArticle(f.queries, f.rss, msg.selected, false)
 		return article, article.Init()
 
 	case success:

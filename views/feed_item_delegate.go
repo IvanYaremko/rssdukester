@@ -35,7 +35,7 @@ func feedItemDelegate(q *database.Queries, rss item) list.DefaultDelegate {
 				return transitionView(item)
 
 			case key.Matches(msg, saveBinding):
-				return savePostItem(q, item, rss)
+				return savePostItem(q, item, rss.title)
 			}
 		}
 		return nil
@@ -44,12 +44,12 @@ func feedItemDelegate(q *database.Queries, rss item) list.DefaultDelegate {
 	return d
 }
 
-func savePostItem(q *database.Queries, selected, rss item) tea.Cmd {
+func savePostItem(q *database.Queries, selected item, feed string) tea.Cmd {
 	return func() tea.Msg {
 		params := database.SavePostParams{
 			Url:       selected.url,
 			Title:     selected.title,
-			Feed:      rss.title,
+			Feed:      feed,
 			CreatedAt: time.Now(),
 		}
 		err := q.SavePost(context.Background(), params)
