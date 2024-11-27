@@ -7,54 +7,109 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
-const deleteSavePost = `-- name: DeleteSavePost :exec
-DELETE FROM saved_posts WHERE url = ?
+const deleteSavedPost = `-- name: DeleteSavedPost :exec
+DELETE FROM saved_posts WHERE post_id = (
+    SELECT id FROM posts WHERE url = ?
+)
 `
 
-func (q *Queries) DeleteSavePost(ctx context.Context, url string) error {
-	_, err := q.db.ExecContext(ctx, deleteSavePost, url)
+func (q *Queries) DeleteSavedPost(ctx context.Context, url string) error {
+	_, err := q.db.ExecContext(ctx, deleteSavedPost, url)
 	return err
 }
 
 const getSavedPost = `-- name: GetSavedPost :one
-SELECT id, title, url, feed, created_at FROM saved_posts WHERE url = ?
+SELECT 
+    p.id, p.feed_id, p.title, p.url, p.content, p.published_at, p.created_at,
+    f.name as feed_name,
+    f.url as feed_url,
+    sp.created_at as saved_at
+FROM saved_posts sp
+JOIN posts p ON sp.post_id = p.id
+JOIN feeds f ON p.feed_id = f.id
+WHERE p.url = ?
 `
 
-func (q *Queries) GetSavedPost(ctx context.Context, url string) (SavedPost, error) {
+type GetSavedPostRow struct {
+	ID          int64
+	FeedID      int64
+	Title       string
+	Url         string
+	Content     sql.NullString
+	PublishedAt time.Time
+	CreatedAt   time.Time
+	FeedName    string
+	FeedUrl     string
+	SavedAt     time.Time
+}
+
+func (q *Queries) GetSavedPost(ctx context.Context, url string) (GetSavedPostRow, error) {
 	row := q.db.QueryRowContext(ctx, getSavedPost, url)
-	var i SavedPost
+	var i GetSavedPostRow
 	err := row.Scan(
 		&i.ID,
+		&i.FeedID,
 		&i.Title,
 		&i.Url,
-		&i.Feed,
+		&i.Content,
+		&i.PublishedAt,
 		&i.CreatedAt,
+		&i.FeedName,
+		&i.FeedUrl,
+		&i.SavedAt,
 	)
 	return i, err
 }
 
 const getSavedPosts = `-- name: GetSavedPosts :many
-SELECT id, title, url, feed, created_at FROM saved_posts ORDER BY created_at DESC
+SELECT 
+    p.id, p.feed_id, p.title, p.url, p.content, p.published_at, p.created_at,
+    f.name as feed_name,
+    f.url as feed_url,
+    sp.created_at as saved_at
+FROM saved_posts sp
+JOIN posts p ON sp.post_id = p.id
+JOIN feeds f ON p.feed_id = f.id
+ORDER BY sp.created_at DESC
 `
 
-func (q *Queries) GetSavedPosts(ctx context.Context) ([]SavedPost, error) {
+type GetSavedPostsRow struct {
+	ID          int64
+	FeedID      int64
+	Title       string
+	Url         string
+	Content     sql.NullString
+	PublishedAt time.Time
+	CreatedAt   time.Time
+	FeedName    string
+	FeedUrl     string
+	SavedAt     time.Time
+}
+
+func (q *Queries) GetSavedPosts(ctx context.Context) ([]GetSavedPostsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSavedPosts)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SavedPost
+	var items []GetSavedPostsRow
 	for rows.Next() {
-		var i SavedPost
+		var i GetSavedPostsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.FeedID,
 			&i.Title,
 			&i.Url,
-			&i.Feed,
+			&i.Content,
+			&i.PublishedAt,
 			&i.CreatedAt,
+			&i.FeedName,
+			&i.FeedUrl,
+			&i.SavedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -69,33 +124,37 @@ func (q *Queries) GetSavedPosts(ctx context.Context) ([]SavedPost, error) {
 	return items, nil
 }
 
+const isPostSaved = `-- name: IsPostSaved :one
+SELECT EXISTS(
+    SELECT 1 FROM saved_posts sp
+    JOIN posts p ON sp.post_id = p.id
+    WHERE p.url = ?
+)
+`
+
+func (q *Queries) IsPostSaved(ctx context.Context, url string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isPostSaved, url)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const savePost = `-- name: SavePost :exec
 INSERT INTO saved_posts (
-title,
-url,
-feed,
-created_at
+    post_id,
+    created_at
 ) VALUES (
-?,
-?,
-?,
-?
+    ?,
+    ?
 )
 `
 
 type SavePostParams struct {
-	Title     string
-	Url       string
-	Feed      string
+	PostID    int64
 	CreatedAt time.Time
 }
 
 func (q *Queries) SavePost(ctx context.Context, arg SavePostParams) error {
-	_, err := q.db.ExecContext(ctx, savePost,
-		arg.Title,
-		arg.Url,
-		arg.Feed,
-		arg.CreatedAt,
-	)
+	_, err := q.db.ExecContext(ctx, savePost, arg.PostID, arg.CreatedAt)
 	return err
 }
