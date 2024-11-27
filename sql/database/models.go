@@ -5,7 +5,6 @@
 package database
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -17,18 +16,10 @@ type Feed struct {
 	UpdatedAt time.Time
 }
 
-type Post struct {
-	ID          int64
-	FeedID      int64
-	Title       string
-	Url         string
-	Content     sql.NullString
-	PublishedAt time.Time
-	CreatedAt   time.Time
-}
-
 type SavedPost struct {
 	ID        int64
-	PostID    int64
+	Title     string
+	Url       string
+	Feed      string
 	CreatedAt time.Time
 }
