@@ -79,6 +79,11 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return feed, feed.Init()
 
 	case success:
+		if l.list.SelectedItem() == nil {
+			message := errorStyle.Bold(true).Render("DELETED LAST FEED")
+			cmd := l.list.NewStatusMessage(message)
+			return l, cmd
+		}
 		selected := l.list.SelectedItem().(item)
 		message := fmt.Sprintf("%s %s",
 			errorStyle.Bold(true).Render("DELETED"),
