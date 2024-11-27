@@ -116,6 +116,11 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return s, nil
 
 	case success:
+		if s.list.SelectedItem() == nil {
+			message := errorStyle.Bold(true).Render("DELETED LAST FEED")
+			cmd := s.list.NewStatusMessage(message)
+			return s, cmd
+		}
 		selected := s.list.SelectedItem().(item)
 		message := fmt.Sprintf("%s %s",
 			errorStyle.Bold(true).Render("DELETED"),
