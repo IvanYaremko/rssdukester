@@ -16,9 +16,7 @@ func main() {
 		log.Fatalln("error opening sqlite3 database.db", err)
 	}
 	defer db.Close()
-
 	quries := database.New(db)
-
 	p := tea.NewProgram(views.InitHomeModel(quries), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
