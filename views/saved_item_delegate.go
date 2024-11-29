@@ -50,7 +50,7 @@ func savedItemDelegate(q *database.Queries) list.DefaultDelegate {
 
 func removeSaved(i item, q *database.Queries) tea.Cmd {
 	return func() tea.Msg {
-		err := q.DeleteSavePost(context.Background(), i.url)
+		err := q.DeleteSavedPost(context.Background(), i.url)
 		if err != nil {
 			return failError{
 				error: err,

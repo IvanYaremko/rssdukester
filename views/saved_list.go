@@ -64,12 +64,12 @@ func (s *saved) getSavedPosts() tea.Msg {
 	for _, post := range saved {
 		hyperlink := fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", post.Url, "Article link →")
 
-		t, _ := parseDateTime(post.CreatedAt.String())
+		t, _ := parseDateTime(post.LastViewed.String())
 		savedDate := subtleStyle.Italic(true).Render(t.Format(formateDate))
 
 		desc := fmt.Sprintf("%s %s %s",
 			specialStyle.Render(hyperlink),
-			attentionStyle.Render(post.Feed),
+			attentionStyle.Render(post.FeedName),
 			savedDate,
 		)
 
@@ -77,7 +77,7 @@ func (s *saved) getSavedPosts() tea.Msg {
 			title:       post.Title,
 			description: desc,
 			url:         post.Url,
-			feed:        post.Feed,
+			feedName:    post.FeedName,
 		})
 	}
 	return successItems{
@@ -117,7 +117,7 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case success:
 		if s.list.SelectedItem() == nil {
-			message := errorStyle.Bold(true).Render("DELETED LAST FEED")
+			message := errorStyle.Bold(true).Render("DELETED LAST SAVED POST")
 			cmd := s.list.NewStatusMessage(message)
 			return s, cmd
 		}
@@ -130,7 +130,7 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return s, cmd
 
 	case selected:
-		article := InitialiseArticle(s.queries, item{title: msg.selected.feed}, msg.selected, true)
+		article := InitialiseArticle(s.queries, item{title: msg.selected.feedName}, msg.selected, true)
 		return article, article.Init()
 	}
 
