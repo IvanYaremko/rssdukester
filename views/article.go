@@ -2,8 +2,10 @@ package views
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/IvanYaremko/rssdukester/reader"
 	"github.com/IvanYaremko/rssdukester/sql/database"
@@ -84,11 +86,28 @@ func (a article) Init() tea.Cmd {
 
 func (a article) loadMarkdown(url string) tea.Cmd {
 	return func() tea.Msg {
+		post, err := a.queries.GetPostByUrl(context.Background(), url)
+		if err == nil && post.Content.Valid {
+			return successContent{content: post.Content.String}
+		}
+
 		markdown, err := reader.GetMarkdown(url)
 		if err != nil {
 			return failError{
 				error: err,
 			}
+		}
+
+		err = a.queries.CreatePost(context.Background(), database.CreatePostParams{
+			FeedID:      a.rss.feedId,
+			Title:       a.post.title,
+			Url:         url,
+			Content:     sql.NullString{String: markdown, Valid: true},
+			PublishedAt: time.Now(), // TODO: bring in actual post through list.Item
+			LastViewed:  time.Now(),
+		})
+		if err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+			return failError{error: err}
 		}
 
 		return successContent{content: markdown}
@@ -97,8 +116,11 @@ func (a article) loadMarkdown(url string) tea.Cmd {
 
 func (a article) checkIfSaved(url string) tea.Cmd {
 	return func() tea.Msg {
-		_, err := a.queries.GetSavedPost(context.Background(), url)
-		if err == nil {
+		saved, err := a.queries.IsPostSaved(context.Background(), url)
+		if err != nil {
+			return failError{}
+		}
+		if saved == 1 {
 			return success{}
 		}
 		return item{}
@@ -158,7 +180,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if a.navToSaved {
 				return a, nil
 			}
-			return a, savePostItem(a.queries, a.post, a.rss.title)
+			return a, savePostItem(a.queries, a.post)
 		}
 
 	case successContent:
@@ -234,4 +256,23 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func savePostItem(q *database.Queries, selected item) tea.Cmd {
+	return func() tea.Msg {
+		post, err := q.GetPostByUrl(context.Background(), selected.url)
+		if err != nil {
+			return failError{error: err}
+		}
+
+		params := database.CreateSavedPostParams{
+			PostID:    post.ID,
+			CreatedAt: time.Now(),
+		}
+		err = q.CreateSavedPost(context.Background(), params)
+		if err != nil {
+			return fail{}
+		}
+		return success{}
+	}
 }
