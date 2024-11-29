@@ -1,11 +1,10 @@
 -- +goose Up
 CREATE TABLE saved_posts (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-title TEXT NOT NULL,
-url TEXT NOT NULL,
-feed TEXT NOT NULL,
+post_id INTEGER NOT NULL,
 created_at DATETIME NOT NULL,
-UNIQUE(url)
+UNIQUE(post_id),
+FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
 -- +goose Down

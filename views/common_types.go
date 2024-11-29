@@ -25,7 +25,8 @@ type item struct {
 	title       string
 	description string
 	url         string
-	feed        string
+	feedName    string
+	feedId      int64
 }
 
 func (i item) FilterValue() string { return i.title }

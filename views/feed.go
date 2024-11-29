@@ -38,13 +38,11 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
-			saveBinding,
 		}
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			backBinding,
-			saveBinding,
 		}
 	}
 	l.StatusMessageLifetime = 3 * time.Second
@@ -178,21 +176,6 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case selected:
 		article := InitialiseArticle(f.queries, f.rss, msg.selected, false)
 		return article, article.Init()
-
-	case success:
-		selected := f.list.SelectedItem().(item)
-		message := fmt.Sprintf("%s %s",
-			attentionStyle.Bold(true).Render("SAVED"),
-			specialStyle.Italic(true).Render(selected.title),
-		)
-		cmd = f.list.NewStatusMessage(message)
-		return f, cmd
-
-	case fail:
-		cmd = f.list.NewStatusMessage(
-			errorStyle.Render("already saved!"),
-		)
-		return f, cmd
 
 	case failError:
 		f.err = msg.error
