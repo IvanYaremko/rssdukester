@@ -116,7 +116,8 @@ func (l *rssList) getRssFeeds() tea.Msg {
 			title:       feeds[i].Name,
 			description: specialStyle.Render(hyperlink),
 			url:         feeds[i].Url,
-			feed:        feeds[i].Name,
+			feedName:    feeds[i].Name,
+			feedId:      feeds[i].ID,
 		}
 	}
 
