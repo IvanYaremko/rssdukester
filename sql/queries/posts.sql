@@ -35,5 +35,11 @@ FROM posts p
 JOIN feeds f ON p.feed_id = f.id
 ORDER BY published_at DESC;
 
--- name: DeleteSavePost :exec
+-- name: UpdatePostContent :exec
+UPDATE posts SET content = ? WHERE url = ?;
+
+-- name: GetPostContent :exec
+SELECT content FROM posts WHERE url = ? AND content IS NOT NULL;
+
+-- name: DeletePost :exec
 DELETE FROM posts WHERE url = ?;
