@@ -50,12 +50,12 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 	return err
 }
 
-const deleteSavePost = `-- name: DeleteSavePost :exec
+const deletePost = `-- name: DeletePost :exec
 DELETE FROM posts WHERE url = ?
 `
 
-func (q *Queries) DeleteSavePost(ctx context.Context, url string) error {
-	_, err := q.db.ExecContext(ctx, deleteSavePost, url)
+func (q *Queries) DeletePost(ctx context.Context, url string) error {
+	_, err := q.db.ExecContext(ctx, deletePost, url)
 	return err
 }
 
@@ -95,6 +95,15 @@ func (q *Queries) GetPostByUrl(ctx context.Context, url string) (Post, error) {
 		&i.LastViewed,
 	)
 	return i, err
+}
+
+const getPostContent = `-- name: GetPostContent :exec
+SELECT content FROM posts WHERE url = ? AND content IS NOT NULL
+`
+
+func (q *Queries) GetPostContent(ctx context.Context, url string) error {
+	_, err := q.db.ExecContext(ctx, getPostContent, url)
+	return err
 }
 
 const getPosts = `-- name: GetPosts :many
@@ -219,4 +228,18 @@ func (q *Queries) GetPostsWithFeed(ctx context.Context) ([]GetPostsWithFeedRow, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updatePostContent = `-- name: UpdatePostContent :exec
+UPDATE posts SET content = ? WHERE url = ?
+`
+
+type UpdatePostContentParams struct {
+	Content sql.NullString
+	Url     string
+}
+
+func (q *Queries) UpdatePostContent(ctx context.Context, arg UpdatePostContentParams) error {
+	_, err := q.db.ExecContext(ctx, updatePostContent, arg.Content, arg.Url)
+	return err
 }
