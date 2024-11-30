@@ -119,6 +119,7 @@ func (f feed) fetchRssFeed() tea.Msg {
 			title:       val.Title,
 			description: fmt.Sprintf("%s • %s", hyperLink, pubDate),
 			url:         url,
+			pubDate:     t,
 		}
 	}
 
