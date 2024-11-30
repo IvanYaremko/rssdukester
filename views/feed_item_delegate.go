@@ -1,13 +1,12 @@
 package views
 
 import (
-	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func feedItemDelegate(q *database.Queries, rss item) list.DefaultDelegate {
+func feedItemDelegate() list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 	d.Styles.NormalTitle = itemNormalTitle
 	d.Styles.NormalDesc = itemNormalDesc
