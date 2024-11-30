@@ -32,19 +32,17 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	s.Style = highlightStyle
 
 	items := make([]list.Item, 0)
-	l := list.New(items, feedItemDelegate(q, rss), width, height)
+	l := list.New(items, feedItemDelegate(), width, height)
 	l.Title = fmt.Sprintf("%s FEED", strings.ToUpper(rss.title))
 	l.Styles.Title = highlightStyle
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
-			saveBinding,
 		}
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			backBinding,
-			saveBinding,
 		}
 	}
 	l.StatusMessageLifetime = 3 * time.Second
