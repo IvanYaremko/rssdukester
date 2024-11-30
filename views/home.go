@@ -15,7 +15,6 @@ var (
 		"add",
 		"saved",
 		"search",
-		"recommended",
 	}
 	width  = 100
 	height = 40
