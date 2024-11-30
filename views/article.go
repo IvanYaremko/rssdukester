@@ -108,7 +108,7 @@ func (a article) loadMarkdown(url string) tea.Cmd {
 			Title:       a.post.title,
 			Url:         url,
 			Content:     sql.NullString{String: markdown, Valid: true},
-			PublishedAt: time.Now(), // TODO: bring in actual post through list.Item
+			PublishedAt: a.post.pubDate,
 			LastViewed:  time.Now(),
 		})
 		if err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
