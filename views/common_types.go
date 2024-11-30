@@ -1,6 +1,8 @@
 package views
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -27,6 +29,7 @@ type item struct {
 	url         string
 	feedName    string
 	feedId      int64
+	pubDate     time.Time
 }
 
 func (i item) FilterValue() string { return i.title }
