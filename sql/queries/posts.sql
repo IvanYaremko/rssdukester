@@ -38,6 +38,9 @@ ORDER BY published_at DESC;
 -- name: UpdatePostContent :exec
 UPDATE posts SET content = ? WHERE url = ?;
 
+-- name: UpdateLastViewed :exec
+UPDATE posts SET last_viewed = ? WHERE url = ?;
+
 -- name: GetPostContent :exec
 SELECT content FROM posts WHERE url = ? AND content IS NOT NULL;
 

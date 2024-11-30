@@ -38,11 +38,13 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
+			saveBinding,
 		}
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			backBinding,
+			saveBinding,
 		}
 	}
 	l.StatusMessageLifetime = 3 * time.Second

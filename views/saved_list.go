@@ -64,10 +64,9 @@ func (s *saved) getSavedPosts() tea.Msg {
 	for _, post := range saved {
 		hyperlink := fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", post.Url, "Article link →")
 
-		t, _ := parseDateTime(post.LastViewed.String())
-		savedDate := subtleStyle.Italic(true).Render(t.Format(formateDate))
+		savedDate := subtleStyle.Italic(true).Render(post.SavedAt.Format(formateDate))
 
-		desc := fmt.Sprintf("%s %s %s",
+		desc := fmt.Sprintf("%s • %s • %s",
 			specialStyle.Render(hyperlink),
 			attentionStyle.Render(post.FeedName),
 			savedDate,

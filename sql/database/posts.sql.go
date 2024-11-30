@@ -230,6 +230,20 @@ func (q *Queries) GetPostsWithFeed(ctx context.Context) ([]GetPostsWithFeedRow, 
 	return items, nil
 }
 
+const updateLastViewed = `-- name: UpdateLastViewed :exec
+UPDATE posts SET last_viewed = ? WHERE url = ?
+`
+
+type UpdateLastViewedParams struct {
+	LastViewed time.Time
+	Url        string
+}
+
+func (q *Queries) UpdateLastViewed(ctx context.Context, arg UpdateLastViewedParams) error {
+	_, err := q.db.ExecContext(ctx, updateLastViewed, arg.LastViewed, arg.Url)
+	return err
+}
+
 const updatePostContent = `-- name: UpdatePostContent :exec
 UPDATE posts SET content = ? WHERE url = ?
 `

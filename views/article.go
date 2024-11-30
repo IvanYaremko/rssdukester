@@ -88,6 +88,11 @@ func (a article) loadMarkdown(url string) tea.Cmd {
 	return func() tea.Msg {
 		post, err := a.queries.GetPostByUrl(context.Background(), url)
 		if err == nil && post.Content.Valid {
+
+			a.queries.UpdateLastViewed(context.Background(), database.UpdateLastViewedParams{
+				LastViewed: time.Now(),
+				Url:        url,
+			})
 			return successContent{content: post.Content.String}
 		}
 
