@@ -81,12 +81,14 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					rssFeeds := initialiseRssList(h.queries)
 					return rssFeeds, rssFeeds.Init()
 				case 1:
-					//
 					addFeed := initialiseAddFeed(h.queries)
 					return addFeed, addFeed.Init()
 				case 2:
 					saved := initialiseSaved(h.queries)
 					return saved, saved.Init()
+				case 3:
+					search := initialiseSearch(h.queries)
+					return search, search.Init()
 				}
 			}
 		}
