@@ -45,7 +45,6 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 			backBinding,
 		}
 	}
-	l.StatusMessageLifetime = 3 * time.Second
 
 	return feed{
 		queries: q,
