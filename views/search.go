@@ -28,6 +28,7 @@ func initialiseSearch(q *database.Queries, st string) search {
 	ti.TextStyle = highlightStyle
 	ti.Focus()
 	ti.Width = width
+	ti.Validate = textValidate
 
 	if st != "" {
 		ti.SetValue(st)
@@ -97,7 +98,16 @@ func (s search) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, moveFocus...):
 			if key.Matches(msg, s.keys.Enter) && s.cursor == 1 {
-				// transition view submit
+				err := s.searchInput.Validate(s.searchInput.Value())
+				if err != nil {
+					s.err = err
+					s.cursor = 0
+					cmd = s.searchInput.Focus()
+					s.searchInput.TextStyle = highlightStyle
+					return s, cmd
+				}
+				sl := initialiseSearchList(s.queries, s.searchInput.Value())
+				return sl, sl.Init()
 			}
 			if s.cursor == 0 {
 				s.cursor = 1
@@ -120,19 +130,12 @@ func (s search) View() string {
 	sb := strings.Builder{}
 
 	if s.err != nil {
-		return baseStyle.Render(
-			fmt.Sprintf("%s \n\n %s",
-				errorStyle.Render("something has gone wrong"),
-				errorStyle.Render(s.err.Error()),
-			),
-		)
+		sb.WriteString(errorStyle.Render("Empty input!"))
+		sb.WriteString("\n\n\n")
 	}
-
 	sb.WriteString(s.searchInput.View())
-
 	sb.WriteString("\n\n")
 	button := fmt.Sprintf("[ %s ]", subtleStyle.Render("submit"))
-
 	if s.cursor == 1 {
 		button = highlightStyle.Render("[ Submit ]")
 	}
