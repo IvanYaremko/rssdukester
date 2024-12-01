@@ -87,7 +87,7 @@ func (h Home) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					saved := initialiseSaved(h.queries)
 					return saved, saved.Init()
 				case 3:
-					search := initialiseSearch(h.queries)
+					search := initialiseSearch(h.queries, "")
 					return search, search.Init()
 				}
 			}
