@@ -59,7 +59,7 @@ func (s search) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd  tea.Cmd
 	)
 
-	if s.cursor == 0 { // Only update text when cursor is on the input
+	if s.cursor == 0 {
 		s.searchInput, cmd = s.searchInput.Update(msg)
 		if cmd != nil {
 			cmds = append(cmds, cmd)
