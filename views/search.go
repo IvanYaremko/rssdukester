@@ -22,18 +22,22 @@ type search struct {
 	keys        addKeyMap
 }
 
-func initialiseSearch(q *database.Queries) search {
+func initialiseSearch(q *database.Queries, st string) search {
 	ti := textinput.New()
 	ti.Placeholder = "Enter search terms..."
 	ti.TextStyle = highlightStyle
 	ti.Focus()
 	ti.Width = width
 
+	if st != "" {
+		ti.SetValue(st)
+	}
+
 	return search{
 		queries:     q,
 		searchInput: ti,
 		err:         nil,
-		searchTerm:  "",
+		searchTerm:  st,
 		cursor:      0,
 		help:        help.New(),
 		keys: addKeyMap{
