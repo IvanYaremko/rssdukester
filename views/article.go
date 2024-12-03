@@ -17,6 +17,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	backToFeed int = iota
+	backToSaved
+	backToSearch
+)
+
 var (
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
@@ -41,11 +47,12 @@ type article struct {
 	ready      bool
 	help       help.Model
 	keys       articleKeyMap
-	navToSaved bool
+	backTo     int
 	saved      bool
+	searchTerm string
 }
 
-func InitialiseArticle(q *database.Queries, rss, selected item, fromSaved bool) article {
+func InitialiseArticle(q *database.Queries, rss, selected item, backTo int, st string) article {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = highlightStyle
@@ -60,7 +67,7 @@ func InitialiseArticle(q *database.Queries, rss, selected item, fromSaved bool) 
 		Quit: quitBinding,
 	}
 
-	if !fromSaved {
+	if backTo != 1 {
 		k.Save = saveBinding
 	}
 
@@ -73,10 +80,11 @@ func InitialiseArticle(q *database.Queries, rss, selected item, fromSaved bool) 
 		spinner:    s,
 		viewport:   vp,
 		ready:      false,
-		navToSaved: fromSaved,
+		backTo:     backTo,
 		help:       help.New(),
 		keys:       k,
 		saved:      false,
+		searchTerm: st,
 	}
 }
 
@@ -175,14 +183,19 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, ctrlcBinding):
 			return a, tea.Quit
 		case key.Matches(msg, backBinding):
-			if a.navToSaved {
+			if a.backTo == 0 {
+				feed := initialiseFeed(a.queries, a.rss)
+				return feed, feed.Init()
+			} else if a.backTo == 1 {
 				saved := initialiseSaved(a.queries)
 				return saved, saved.Init()
+			} else {
+				search := initialiseSearchList(a.queries, a.searchTerm)
+				return search, search.Init()
 			}
-			feed := initialiseFeed(a.queries, a.rss)
-			return feed, feed.Init()
+
 		case key.Matches(msg, saveBinding):
-			if a.navToSaved {
+			if a.backTo == 1 {
 				return a, nil
 			}
 			return a, savePostItem(a.queries, a.post)
