@@ -74,53 +74,56 @@ type rssItemResponse struct {
 	Atom        string `xml:"atom,link"`
 }
 
-func (f feed) fetchRssFeed() tea.Msg {
-	req, err := http.NewRequestWithContext(context.Background(), "GET", f.rss.url, nil)
-	if err != nil {
-		return failError{error: err}
-	}
+func fetchRssFeed(rssUrl string) tea.Cmd {
+	return func() tea.Msg {
 
-	req.Header.Add("User-Agent", "rssdukester")
-	client := http.Client{}
-	response, err := client.Do(req)
-	if err != nil {
-		return failError{error: err}
-	}
-	defer response.Body.Close()
-
-	decoder := xml.NewDecoder(response.Body)
-	rss := rssResponse{}
-	if err := decoder.Decode(&rss); err != nil {
-		return failError{error: err}
-	}
-
-	items := make([]list.Item, len(rss.Channel.Item))
-	for i, val := range rss.Channel.Item {
-		url := val.Link
-
-		if url == "" {
-			url = val.Guid
-		}
-		if url == "" {
-			url = val.Atom
+		req, err := http.NewRequestWithContext(context.Background(), "GET", rssUrl, nil)
+		if err != nil {
+			return failError{error: err}
 		}
 
-		hyperLink := specialStyle.Render(
-			fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", url, "Article link →"),
-		)
-
-		t, _ := parseDateTime(val.PubDate)
-		pubDate := attentionStyle.Italic(true).Render(t.Format(formateDate))
-
-		items[i] = item{
-			title:       val.Title,
-			description: fmt.Sprintf("%s • %s", hyperLink, pubDate),
-			url:         url,
-			pubDate:     t,
+		req.Header.Add("User-Agent", "rssdukester")
+		client := http.Client{}
+		response, err := client.Do(req)
+		if err != nil {
+			return failError{error: err}
 		}
-	}
+		defer response.Body.Close()
 
-	return successItems{items: items}
+		decoder := xml.NewDecoder(response.Body)
+		rss := rssResponse{}
+		if err := decoder.Decode(&rss); err != nil {
+			return failError{error: err}
+		}
+
+		items := make([]list.Item, len(rss.Channel.Item))
+		for i, val := range rss.Channel.Item {
+			url := val.Link
+
+			if url == "" {
+				url = val.Guid
+			}
+			if url == "" {
+				url = val.Atom
+			}
+
+			hyperLink := specialStyle.Render(
+				fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", url, "Article link →"),
+			)
+
+			t, _ := parseDateTime(val.PubDate)
+			pubDate := attentionStyle.Italic(true).Render(t.Format(formateDate))
+
+			items[i] = item{
+				title:       val.Title,
+				description: fmt.Sprintf("%s • %s", hyperLink, pubDate),
+				url:         url,
+				pubDate:     t,
+			}
+		}
+
+		return successItems{items: items}
+	}
 }
 
 func parseDateTime(dateStr string) (time.Time, error) {
@@ -145,7 +148,7 @@ func parseDateTime(dateStr string) (time.Time, error) {
 }
 
 func (f feed) Init() tea.Cmd {
-	return tea.Batch(f.spinner.Tick, f.fetchRssFeed)
+	return tea.Batch(f.spinner.Tick, fetchRssFeed(f.rss.url))
 }
 
 func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
