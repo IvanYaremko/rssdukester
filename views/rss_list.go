@@ -31,7 +31,7 @@ func initialiseRssList(q *database.Queries) rssList {
 	}
 	feedsList.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			backBinding,
+			ctrlcBinding,
 		}
 	}
 	l := rssList{

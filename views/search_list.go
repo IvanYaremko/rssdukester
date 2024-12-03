@@ -45,7 +45,7 @@ func initialiseSearchList(q *database.Queries, st string) searchList {
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			backBinding,
+			ctrlcBinding,
 		}
 	}
 

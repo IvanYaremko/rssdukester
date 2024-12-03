@@ -34,7 +34,7 @@ func initialiseSaved(q *database.Queries) saved {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
-			backBinding,
+			ctrlcBinding,
 			removeBinding,
 		}
 	}

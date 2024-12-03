@@ -62,7 +62,7 @@ func InitialiseArticle(q *database.Queries, rss, selected item, backTo int, st s
 	k := articleKeyMap{
 		Up:   upBinding,
 		Down: downBinding,
-		Back: backBinding,
+		Back: ctrlcBinding,
 		Help: helpBinding,
 		Quit: quitBinding,
 	}

@@ -32,7 +32,10 @@ type item struct {
 	pubDate     time.Time
 }
 
-func (i item) FilterValue() string { return i.title }
+func (i item) FilterValue() string {
+	return i.title
+}
+
 func (i item) Description() string {
 	return i.description
 }

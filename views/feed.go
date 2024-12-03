@@ -42,7 +42,7 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			backBinding,
+			ctrlcBinding,
 		}
 	}
 
