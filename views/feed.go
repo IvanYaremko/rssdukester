@@ -177,7 +177,7 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return f, cmd
 
 	case selected:
-		article := InitialiseArticle(f.queries, f.rss, msg.selected, false)
+		article := InitialiseArticle(f.queries, f.rss, msg.selected, backToFeed, "")
 		return article, article.Init()
 
 	case failError:
