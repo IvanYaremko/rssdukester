@@ -1,8 +1,10 @@
 package views
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/IvanYaremko/rssdukester/sql/database"
 	"github.com/charmbracelet/bubbles/key"
@@ -10,6 +12,11 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+type searchResult struct {
+	items []list.Item
+	err   error
+}
 
 type searchList struct {
 	queries    *database.Queries
@@ -75,6 +82,11 @@ func (sl searchList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			search := initialiseSearch(sl.queries, sl.searchTerm)
 			return search, search.Init()
 		}
+
+	case successItems:
+		cmd = sl.list.SetItems(msg.items)
+		sl.loading = false
+		return sl, cmd
 	}
 	sl.list, cmd = sl.list.Update(msg)
 	cmds = append(cmds, cmd)
@@ -88,11 +100,76 @@ func (sl searchList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (sl searchList) View() string {
 	sb := strings.Builder{}
 
+	if sl.loading {
+		return baseStyle.Render(fmt.Sprintf("%s %s",
+			sl.spinner.View(),
+			highlightStyle.Render("Searching...")),
+		)
+	}
+
 	sb.WriteString(sl.list.View())
 	return baseStyle.Render(sb.String())
 }
 
 func (sl searchList) performSearch() tea.Msg {
 
-	return success{}
+	feeds, err := sl.queries.GetFeeds(context.Background())
+	if err != nil {
+		return failError{error: err}
+	}
+
+	results := make(chan searchResult)
+	wg := sync.WaitGroup{}
+
+	for _, feed := range feeds {
+		wg.Add(1)
+		go func(feed database.Feed) {
+			defer wg.Done()
+
+			msg := fetchRssFeed(feed.Url)()
+			if successItems, ok := msg.(successItems); ok {
+				filteredItems := []list.Item{}
+				searchTermLower := strings.ToLower(sl.searchTerm)
+
+				for _, sI := range successItems.items {
+					if feedItem, ok := sI.(item); ok {
+						if strings.Contains(strings.ToLower(feedItem.title), searchTermLower) {
+							filteredItems = append(filteredItems, item{
+								title:       feedItem.title,
+								url:         feedItem.url,
+								pubDate:     feedItem.pubDate,
+								description: fmt.Sprintf("%s • %s", feedItem.description, attentionStyle.Render(feed.Name)),
+								feedId:      feed.ID,
+								feedName:    feed.Name,
+							})
+						}
+					}
+				}
+				results <- searchResult{items: filteredItems}
+			} else if errMsg, ok := msg.(failError); ok {
+				results <- searchResult{err: errMsg.error}
+			}
+		}(feed)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	allItems := []list.Item{}
+	errors := []error{}
+
+	for result := range results {
+		if result.err != nil {
+			errors = append(errors, result.err)
+		}
+		allItems = append(allItems, result.items...)
+	}
+
+	if len(errors) > 0 {
+		return failError{error: errors[0]}
+	}
+
+	return successItems{items: allItems}
 }
