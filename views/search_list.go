@@ -87,6 +87,10 @@ func (sl searchList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = sl.list.SetItems(msg.items)
 		sl.loading = false
 		return sl, cmd
+
+	case selected:
+		article := InitialiseArticle(sl.queries, item{title: msg.selected.feedName}, msg.selected, backToSearch, sl.searchTerm)
+		return article, article.Init()
 	}
 	sl.list, cmd = sl.list.Update(msg)
 	cmds = append(cmds, cmd)
