@@ -62,7 +62,7 @@ func InitialiseArticle(q *database.Queries, rss, selected item, backTo int, st s
 	k := articleKeyMap{
 		Up:   upBinding,
 		Down: downBinding,
-		Back: ctrlcBinding,
+		Back: escBinding,
 		Help: helpBinding,
 		Quit: quitBinding,
 	}
@@ -182,7 +182,7 @@ func (a article) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, tea.Quit
 		case key.Matches(msg, ctrlcBinding):
 			return a, tea.Quit
-		case key.Matches(msg, backBinding):
+		case key.Matches(msg, escBinding):
 			if a.backTo == 0 {
 				feed := initialiseFeed(a.queries, a.rss)
 				return feed, feed.Init()

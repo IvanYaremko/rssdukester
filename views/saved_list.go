@@ -34,7 +34,7 @@ func initialiseSaved(q *database.Queries) saved {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			enterBinding,
-			ctrlcBinding,
+			escBinding,
 			removeBinding,
 		}
 	}
@@ -100,7 +100,7 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return s, tea.Quit
 		case key.Matches(msg, quitBinding):
 			return s, tea.Quit
-		case key.Matches(msg, backBinding):
+		case key.Matches(msg, escBinding):
 			home := InitHomeModel(s.queries)
 			return home, home.Init()
 		}

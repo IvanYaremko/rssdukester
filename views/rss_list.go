@@ -31,7 +31,7 @@ func initialiseRssList(q *database.Queries) rssList {
 	}
 	feedsList.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			ctrlcBinding,
+			escBinding,
 		}
 	}
 	l := rssList{
@@ -64,8 +64,6 @@ func (l rssList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				l.list.ResetFilter()
 				return l, nil
 			}
-			return l, nil
-		case key.Matches(msg, backBinding):
 			home := InitHomeModel(l.queries)
 			return home, home.Init()
 		}

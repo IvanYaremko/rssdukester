@@ -45,7 +45,7 @@ func initialiseSearchList(q *database.Queries, st string) searchList {
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			ctrlcBinding,
+			escBinding,
 		}
 	}
 
@@ -78,7 +78,7 @@ func (sl searchList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return sl, tea.Quit
 		case key.Matches(msg, quitBinding):
 			return sl, tea.Quit
-		case key.Matches(msg, backBinding):
+		case key.Matches(msg, escBinding):
 			search := initialiseSearch(sl.queries, sl.searchTerm)
 			return search, search.Init()
 		}

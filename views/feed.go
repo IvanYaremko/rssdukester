@@ -42,7 +42,7 @@ func initialiseFeed(q *database.Queries, rss item) feed {
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			ctrlcBinding,
+			escBinding,
 		}
 	}
 
@@ -167,7 +167,7 @@ func (f feed) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return f, tea.Quit
 		case key.Matches(msg, quitBinding):
 			return f, tea.Quit
-		case key.Matches(msg, backBinding):
+		case key.Matches(msg, escBinding):
 			rssList := initialiseRssList(f.queries)
 			return rssList, rssList.Init()
 		}
