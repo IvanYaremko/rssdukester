@@ -68,8 +68,8 @@ func (s *saved) getSavedPosts() tea.Msg {
 
 		desc := fmt.Sprintf("%s • %s • %s",
 			specialStyle.Render(hyperlink),
-			attentionStyle.Render(post.FeedName),
 			pubDate,
+			attentionStyle.Render(post.FeedName),
 		)
 
 		items = append(items, item{
