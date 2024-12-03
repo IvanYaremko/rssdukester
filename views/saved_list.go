@@ -129,7 +129,7 @@ func (s saved) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return s, cmd
 
 	case selected:
-		article := InitialiseArticle(s.queries, item{title: msg.selected.feedName}, msg.selected, true)
+		article := InitialiseArticle(s.queries, item{title: msg.selected.feedName}, msg.selected, backToSaved, "")
 		return article, article.Init()
 	}
 
