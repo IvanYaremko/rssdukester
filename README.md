@@ -156,3 +156,12 @@ If you see `gcc: executable file not found in %PATH%`:
 - [html-to-markdown](https://github.com/JohannesKaufmann/html-to-markdown) 
 - [sqlite](https://www.sqlite.org/)
 
+<br>
+
+<strong> 📝 License </strong>
+
+- This project is licensed under the MIT License - see the LICENSE file for details.
+- See ThirdPartyLICENSE.md for information about dependent licenses.
+- This software is a reader for RSS feeds and does not claim ownership of any content accessed through it.
+Users must respect the copyright and terms of service of all RSS feed providers and content publishers.
+Users are responsible for ensuring their use of RSS feeds complies with the respective publishers' terms of service.
