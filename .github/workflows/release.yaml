@@ -5,14 +5,14 @@ on:
     types: [created]
 
 jobs:
-  releases-matrix:
-    name: Release Binary
+  # Separate job for Linux and Windows builds
+  releases-linux-windows:
+    name: Release Binary (Linux/Windows)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Build for Windows, Linux, and macOS (amd64 only)
-        goos: [windows, linux, darwin]
-        goarch: [amd64]  # Removed arm64 to focus on stable builds
+        goos: [windows, linux]
+        goarch: [amd64]
 
     steps:
     - uses: actions/checkout@v3
@@ -27,28 +27,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-mingw-w64-x86-64
-        sudo apt-get install -y gcc-mingw-w64-x86-64-win32
         x86_64-w64-mingw32-gcc --version
-
-    - name: Install SQLite (Windows)
-      if: matrix.goos == 'windows'
-      run: |
-        wget https://www.sqlite.org/2024/sqlite-amalgamation-3450000.zip
-        unzip sqlite-amalgamation-3450000.zip
-        sudo cp sqlite-amalgamation-3450000/sqlite3.h /usr/x86_64-w64-mingw32/include/
-        sudo cp sqlite-amalgamation-3450000/sqlite3ext.h /usr/x86_64-w64-mingw32/include/
 
     - name: Set up dependencies for Linux
       if: matrix.goos == 'linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc libsqlite3-dev
-
-    - name: Set up dependencies for macOS
-      if: matrix.goos == 'darwin'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y clang libsqlite3-dev
 
     - name: Build Windows Binary
       if: matrix.goos == 'windows'
@@ -59,18 +44,16 @@ jobs:
         CC: x86_64-w64-mingw32-gcc
       run: |
         go build -v -o rssdukester.exe
-        # Verify the binary was created
         ls -la rssdukester.exe
 
-    - name: Build Unix Binary
-      if: matrix.goos != 'windows'
+    - name: Build Linux Binary
+      if: matrix.goos == 'linux'
       env:
         CGO_ENABLED: 1
-        GOOS: ${{ matrix.goos }}
+        GOOS: linux
         GOARCH: amd64
       run: |
         go build -v -o rssdukester
-        # Verify the binary was created
         ls -la rssdukester
 
     - name: Package Windows Release
@@ -78,8 +61,8 @@ jobs:
       run: |
         zip "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.zip" rssdukester.exe
 
-    - name: Package Unix Release
-      if: matrix.goos != 'windows'
+    - name: Package Linux Release
+      if: matrix.goos == 'linux'
       run: |
         tar czf "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" rssdukester
 
@@ -90,3 +73,40 @@ jobs:
       with:
         files: |
           rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.*
+
+  # Separate job for macOS build
+  releases-macos:
+    name: Release Binary (macOS)
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        goarch: [amd64]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Build macOS Binary
+      env:
+        CGO_ENABLED: 1
+        GOOS: darwin
+        GOARCH: amd64
+      run: |
+        brew install sqlite3
+        go build -v -o rssdukester
+        ls -la rssdukester
+
+    - name: Package macOS Release
+      run: |
+        tar czf "rssdukester-darwin-${{ matrix.goarch }}.tar.gz" rssdukester
+
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: rssdukester-darwin-${{ matrix.goarch }}.tar.gz
