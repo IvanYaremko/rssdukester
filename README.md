@@ -3,11 +3,33 @@
 A terminal-based RSS feed reader with a modern interface. Read, organize, and search your favorite news feeds right from your terminal.
 
 ## Features
-- Add and manage RSS feeds
-- View article feeds in clean terminal interface
-- Read articles directly in the terminal
-- Save articles for later reading
-- Search across all your feeds
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/home.png" alt="Image 1" width="200">
+      <br>
+      Add and manage RSS feeds
+    </td>
+    <td align="center">
+      <img src="images/feed.png" alt="Image 2" width="200">
+      <br>
+      View feed in clean interface
+    </td>
+  </tr>
+  <tr>
+   <td align="center">
+      <img src="images/article.png" alt="Image 3" width="200">
+      <br>
+      Read article directly in the terminal
+    </td>
+    <td align="center">
+      <img src="images/search.png" alt="Image 4" width="200">
+      <br>
+      Search across all your feeds
+    </td>
+  </tr>
+</table>
 
 <details>
 <summary> <h2> Build from source</h2> </summary>
