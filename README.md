@@ -9,10 +9,8 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 - Save articles for later reading
 - Search across all your feeds
 
-## Build from source
-
 <details>
-<summary> build guide </summary>
+<summary> <h2> Build from source</h2> </summary>
 
 <h3> Build Requirements </h3>
 - Go 1.21 or later
