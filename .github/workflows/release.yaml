@@ -26,47 +26,61 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Install dependencies
+    - name: Set up dependencies for Windows
+      if: matrix.goos == 'windows'
       run: |
-        if [ "${{ matrix.goos }}" = "windows" ]; then
-          sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64
-        elif [ "${{ matrix.goos }}" = "darwin" ]; then
-          sudo apt-get update
-          sudo apt-get install -y clang
-        else
-          sudo apt-get update
-          sudo apt-get install -y gcc
-        fi
+        sudo apt-get update
+        sudo apt-get install -y gcc-mingw-w64
+        sudo apt-get install -y gcc-multilib
+        sudo apt-get install -y libsqlite3-dev
 
-    - name: Build
+    - name: Set up dependencies for Linux
+      if: matrix.goos == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc
+        sudo apt-get install -y libsqlite3-dev
+
+    - name: Set up dependencies for macOS
+      if: matrix.goos == 'darwin'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang
+        sudo apt-get install -y libsqlite3-dev
+
+    - name: Build Windows Binary
+      if: matrix.goos == 'windows'
+      env:
+        CGO_ENABLED: 1
+        GOOS: windows
+        GOARCH: ${{ matrix.goarch }}
+        CC: x86_64-w64-mingw32-gcc
+      run: |
+        go build -o rssdukester.exe
+
+    - name: Build Unix Binary
+      if: matrix.goos != 'windows'
       env:
         CGO_ENABLED: 1
         GOOS: ${{ matrix.goos }}
         GOARCH: ${{ matrix.goarch }}
       run: |
-        if [ "${{ matrix.goos }}" = "windows" ]; then
-          export CC=x86_64-w64-mingw32-gcc
-          go build -o rssdukester.exe
-        elif [ "${{ matrix.goos }}" = "darwin" ]; then
-          export CC=clang
-          go build -o rssdukester
-        else
-          go build -o rssdukester
-        fi
+        go build -o rssdukester
 
-    - name: Compress binary
+    - name: Package Windows Release
+      if: matrix.goos == 'windows'
       run: |
-        if [ "${{ matrix.goos }}" = "windows" ]; then
-          zip "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.zip" rssdukester.exe
-        else
-          tar czf "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" rssdukester
-        fi
+        zip "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.zip" rssdukester.exe
 
-    - name: Upload binary to release
+    - name: Package Unix Release
+      if: matrix.goos != 'windows'
+      run: |
+        tar czf "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" rssdukester
+
+    - name: Upload Release Asset
       uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
           rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.*
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
