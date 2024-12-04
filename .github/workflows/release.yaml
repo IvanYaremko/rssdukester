@@ -10,13 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Build for Windows, Linux, and macOS
+        # Build for Windows, Linux, and macOS (amd64 only)
         goos: [windows, linux, darwin]
-        goarch: [amd64, arm64]
-        exclude:
-          # Exclude arm64 build for windows
-          - goarch: arm64
-            goos: windows
+        goarch: [amd64]  # Removed arm64 to focus on stable builds
 
     steps:
     - uses: actions/checkout@v3
@@ -31,7 +27,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-mingw-w64
-        sudo apt-get install -y gcc-multilib
         sudo apt-get install -y libsqlite3-dev
 
     - name: Set up dependencies for Linux
@@ -53,29 +48,41 @@ jobs:
       env:
         CGO_ENABLED: 1
         GOOS: windows
-        GOARCH: ${{ matrix.goarch }}
+        GOARCH: amd64
         CC: x86_64-w64-mingw32-gcc
       run: |
         go build -o rssdukester.exe
+        # Debug: List files to verify executable was created
+        ls -la
 
     - name: Build Unix Binary
       if: matrix.goos != 'windows'
       env:
         CGO_ENABLED: 1
         GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
+        GOARCH: amd64
       run: |
         go build -o rssdukester
+        # Debug: List files to verify executable was created
+        ls -la
 
     - name: Package Windows Release
       if: matrix.goos == 'windows'
       run: |
+        # Debug: Verify exe exists before zipping
+        ls -la
         zip "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.zip" rssdukester.exe
+        # Debug: Verify zip was created
+        ls -la *.zip
 
     - name: Package Unix Release
       if: matrix.goos != 'windows'
       run: |
+        # Debug: Verify binary exists before tar
+        ls -la
         tar czf "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" rssdukester
+        # Debug: Verify tar was created
+        ls -la *.tar.gz
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v1
