@@ -4,32 +4,32 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 
 ## Features
 
-<table>
-  <tr>
-    <td align="center">
-      <img src="images/home.png" alt="Image 1" width="200">
-      <br>
-      Add and manage RSS feeds
-    </td>
-    <td align="center">
-      <img src="images/feed.png" alt="Image 2" width="200">
-      <br>
-      View feed in clean interface
-    </td>
-  </tr>
-  <tr>
-   <td align="center">
-      <img src="images/article.png" alt="Image 3" width="200">
-      <br>
-      Read article directly in the terminal
-    </td>
-    <td align="center">
-      <img src="images/search.png" alt="Image 4" width="200">
-      <br>
-      Search across all your feeds
-    </td>
-  </tr>
-</table>
+<div>
+    <div style="display: flex;">
+        <div>
+            <img src="images/home.png" alt="Image 1" width="200">
+            <br>
+            Add and manage RSS feeds
+        </div>
+        <div style="margin-left: 10px;">
+            <img src="images/feed.png" alt="Image 2" width="200">
+            <br>
+            View feed in clean interface
+        </div>
+    </div>
+     <div style="display: flex; margin-top: 15px;">
+        <div>
+            <img src="images/article.png" alt="Image 3" width="200">
+            <br>
+            Read article directly in the terminal
+        </div>
+         <div style="margin-left: 10px;">
+            <img src="images/search.png" alt="Image 4" width="200">
+            <br>
+            Search across all your feeds
+        </div>
+     </div>
+</div>
 
 <details>
 <summary> <h2> Build from source</h2> </summary>
