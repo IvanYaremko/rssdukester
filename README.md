@@ -10,9 +10,9 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 - Search across all your feeds
 
 <details>
-<summary> build from source </summary>
+<summary> <h2> Build from source </h2> </summary>
 
-## Build Requirements
+### Build Requirements
 - Go 1.21 or later
 - GCC compiler
 - SQLite3
