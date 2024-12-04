@@ -12,14 +12,14 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 <details>
 <summary> <h2> Build from source </h2> </summary>
 
-### Build Requirements
+<h3> Build Requirements </h3>
 - Go 1.21 or later
 - GCC compiler
 - SQLite3
 - Windows Terminal or PowerShell (CMD not supported)
 
 <details>
-<summary> windows </summary>
+<summary> <h3>windows</h3> </summary>
 
 1. **Install MSYS2** 
    ```powershell
@@ -51,7 +51,7 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 </details>
 
 <details>
-<summary> linux </summary>
+<summary> <h3>linux</h3> </summary>
 
 1. **Install dependencies**
    ```bash
@@ -73,7 +73,7 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 </details>
 
 <details>
-<summary> macOS </summary>
+<summary> <h3>macOS</h3> </summary>
 
 1. **Install dependencies**
    ```bash
@@ -94,7 +94,7 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 </details> 
 
 <details>
-<summary> troubleshooting </summary>
+<summary> <h3>troubleshooting</h3> </summary>
 
 If you see `gcc: executable file not found in %PATH%`:
 1. Make sure you opened MSYS2 MINGW64 and ran the pacman command
