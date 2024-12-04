@@ -24,7 +24,7 @@ type search struct {
 
 func initialiseSearch(q *database.Queries, st string) search {
 	ti := textinput.New()
-	ti.Placeholder = "Enter search terms..."
+	ti.Placeholder = "Enter search terms seperated by spaces..."
 	ti.TextStyle = highlightStyle
 	ti.Focus()
 	ti.Width = width

@@ -137,15 +137,18 @@ func (sl searchList) performSearch() tea.Msg {
 
 				for _, sI := range successItems.items {
 					if feedItem, ok := sI.(item); ok {
-						if strings.Contains(strings.ToLower(feedItem.title), searchTermLower) {
-							filteredItems = append(filteredItems, item{
-								title:       feedItem.title,
-								url:         feedItem.url,
-								pubDate:     feedItem.pubDate,
-								description: fmt.Sprintf("%s • %s", feedItem.description, attentionStyle.Render(feed.Name)),
-								feedId:      feed.ID,
-								feedName:    feed.Name,
-							})
+						terms := strings.Split(searchTermLower, " ")
+						for _, t := range terms {
+							if strings.Contains(strings.ToLower(feedItem.title), t) {
+								filteredItems = append(filteredItems, item{
+									title:       feedItem.title,
+									url:         feedItem.url,
+									pubDate:     feedItem.pubDate,
+									description: fmt.Sprintf("%s • %s", feedItem.description, attentionStyle.Render(feed.Name)),
+									feedId:      feed.ID,
+									feedName:    feed.Name,
+								})
+							}
 						}
 					}
 				}
