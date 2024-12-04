@@ -1,55 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100">
-  <text x="300" y="65" 
-        font-family="Arial Black, Helvetica, sans-serif" 
-        font-size="28" 
-        font-weight="bold" 
-        text-anchor="middle" 
-        letterSpacing="2">
-    <tspan fill="#FFB3BA">R</tspan>
-    <tspan fill="#BAFFC9">S</tspan>
-    <tspan fill="#BAE1FF">S</tspan>
-    <tspan fill="#FFFFBA">D</tspan>
-    <tspan fill="#FFB3BA">U</tspan>
-    <tspan fill="#BAFFC9">K</tspan>
-    <tspan fill="#BAE1FF">E</tspan>
-    <tspan fill="#FFFFBA">S</tspan>
-    <tspan fill="#FFB3BA">T</tspan>
-    <tspan fill="#BAFFC9">E</tspan>
-    <tspan fill="#BAE1FF">R</tspan>
-  </text>
-</svg>
+<h2
+      font-family="Arial Black, Helvetica, sans-serif" 
+      font-size="28" 
+      font-weight="bold" 
+      text-anchor="middle" 
+      letterSpacing="2">
+      R S S D U K E S T E R
+</h2>
 
-#
 
  - A simple clean terminal-based RSS feed reader. 
  - Read, organize, and search your favorite news feeds right from your terminal.
  - Application utilizes sqlite3, and has pre-subsrcibed feeds.
  
 <details>
-<summary> <h2> Features </h2> </summary>
+<summary> <h2>Features</h2> </summary>
 
 <details>
-<summary> <h3> Manage RSS feeds </h3> </summary>
+<summary>Manage RSS feeds</summary>
 <img src="images/home.png" alt="Image 1">
 
 </details>
 
 
 <details>
-<summary> <h3> View posts from feeds </h3> </summary>
+<summary>View posts from feeds</summary>
 
 <img src="images/feed.png" alt="Image 2">
 </details>
 
 
 <details>
-<summary> <h3> Read articles in terminal </h3> </summary>
+<summary>Read articles in terminal</summary>
 
  <img src="images/article.png" alt="Image 3">
 </details>
 
 <details>
-<summary> <h3> Search across all your feeds </h3> </summary>
+<summary>Search across all your feeds</summary>
 
  <img src="images/search.png" alt="Image 4">
 </details>
@@ -155,7 +142,7 @@ If you see `gcc: executable file not found in %PATH%`:
 <details>
 <summary> <h2>Under the hood</h2> </summary>
 
-`rssdukester` uses:
+`r s s d u k e s t e r` uses:
 
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) for the TUI
 - [lipgloss](https://github.com/charmbracelet/lipgloss) for text formatting
