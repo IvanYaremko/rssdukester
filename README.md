@@ -1,7 +1,7 @@
 # RSS Dukester
 
 A terminal-based RSS feed reader with a modern interface. Read, organize, and search your favorite news feeds right from your terminal.
-Application utilizes sqlite3, and has pre-subrcibed feeds.
+Application utilizes sqlite3, and has pre-subsrcibed feeds.
 
 <h2>Features</h2>
 <table>
