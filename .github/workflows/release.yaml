@@ -1,0 +1,72 @@
+name: Release Build
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Build for Windows, Linux, and macOS
+        goos: [windows, linux, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          # Exclude arm64 build for windows
+          - goarch: arm64
+            goos: windows
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64
+        elif [ "${{ matrix.goos }}" = "darwin" ]; then
+          sudo apt-get update
+          sudo apt-get install -y clang
+        else
+          sudo apt-get update
+          sudo apt-get install -y gcc
+        fi
+
+    - name: Build
+      env:
+        CGO_ENABLED: 1
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          export CC=x86_64-w64-mingw32-gcc
+          go build -o rssdukester.exe
+        elif [ "${{ matrix.goos }}" = "darwin" ]; then
+          export CC=clang
+          go build -o rssdukester
+        else
+          go build -o rssdukester
+        fi
+
+    - name: Compress binary
+      run: |
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          zip "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.zip" rssdukester.exe
+        else
+          tar czf "rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" rssdukester
+        fi
+
+    - name: Upload binary to release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          rssdukester-${{ matrix.goos }}-${{ matrix.goarch }}.*
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
