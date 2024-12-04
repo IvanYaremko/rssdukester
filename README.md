@@ -9,13 +9,17 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
 - Save articles for later reading
 - Search across all your feeds
 
+<details>
+<summary> build from source </summary>
+
 ## Build Requirements
 - Go 1.21 or later
 - GCC compiler
 - SQLite3
 - Windows Terminal or PowerShell (CMD not supported)
 
-## Building on Windows
+<details>
+<summary> windows </summary>
 
 1. **Install MSYS2** 
    ```powershell
@@ -44,8 +48,10 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
    ```powershell
    .\rssdukester.exe
    ```
+</details>
 
-## Building on Linux
+<details>
+<summary> linux </summary>
 
 1. **Install dependencies**
    ```bash
@@ -64,8 +70,10 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
    ```bash
    ./rssdukester
    ```
+</details>
 
-## Building on macOS
+<details>
+<summary> macOS </summary>
 
 1. **Install dependencies**
    ```bash
@@ -83,10 +91,14 @@ A terminal-based RSS feed reader with a modern interface. Read, organize, and se
    ```bash
    ./rssdukester
    ```
+</details> 
 
-## Troubleshooting
+<details>
+<summary> troubleshooting </summary>
 
 If you see `gcc: executable file not found in %PATH%`:
 1. Make sure you opened MSYS2 MINGW64 and ran the pacman command
 2. Verify GCC is installed by running: `gcc --version`
 3. Ensure you added MinGW to PATH as shown in the build steps
+</details>
+</details>
