@@ -1,14 +1,13 @@
 ## R S S D U K E S T E R
 
-<strong> 🚀 A simple, modern terminal-based RSS feed reader built with Go and BubbleTea </strong>
+<strong> A simple, modern terminal-based RSS feed reader built with Go and BubbleTea </strong>
 
-<strong> 📖 Overview </strong>
+<strong> Overview </strong>
 - Manage RSS feeds for personal use only
 - See installation instructions to build from source
 - Run application within source directory to connect with sqlite database
-- Feel free to fork and make it your own!
 
-<strong> ✨ Key Features </strong>
+<strong> Features </strong>
 
 - <i>Feed Management</i>: Add, remove, and organize RSS feeds with ease
 - <i>Article Preview</i>: Read articles directly in your terminal with converted markdown text.
@@ -16,12 +15,11 @@
 - <i>Bookmarks</i>: Save interesting articles for later reading
 - <i>Offline Support</i>: Access saved articles without an internet connection
 - <i>Keyboard-Driven</i>: Efficient navigation using intuitive keyboard shortcuts
-- <i>Pre-configured Feeds</i>: Get started immediately with preconfigured feed suggestions
 
 <br>
  
 <details>
-<summary> <strong>📷 images</strong> </summary>
+<summary> <strong>images</strong> </summary>
 
    <details>
    <summary>Manage RSS feeds</summary>
@@ -55,7 +53,7 @@
 
 <br>
 
-<summary> <strong> 🛠️ Installation </strong> </summary>
+<summary> <strong> Installation </strong> </summary>
 
 requirements:
 
@@ -141,7 +139,7 @@ requirements:
 </details> 
 
 <br>
-🐛 Troubleshooting
+Troubleshooting
 
 If you see `gcc: executable file not found in %PATH%`:
 1. Make sure you opened MSYS2 MINGW64 and ran the pacman command
@@ -151,7 +149,7 @@ If you see `gcc: executable file not found in %PATH%`:
 
 <br>
 
-<strong>🔧 Technology Stack </strong>
+<strong>Technology Stack </strong>
 
 `r s s d u k e s t e r`  is built with
 
@@ -166,7 +164,11 @@ If you see `gcc: executable file not found in %PATH%`:
 
 <br>
 
-<strong> 📝 License </strong>
+<strong> The Duke </strong> 
+ <img src="images/dukester.jpeg" alt="Image 4">
+<br>
+
+<strong> License </strong>
 
 - This project is licensed under the MIT License - see the LICENSE file for details.
 - See ThirdPartyLICENSE.md for information about dependent licenses.
