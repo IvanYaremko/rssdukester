@@ -166,7 +166,7 @@ If you see `gcc: executable file not found in %PATH%`:
 
 <strong> The Duke </strong> 
 <br>
- <img src="images/dukester.jpg" alt="cat">
+ <img src="images/dukester.jpg" alt="cat" width="300">
 <br>
 
 <strong> License </strong>
